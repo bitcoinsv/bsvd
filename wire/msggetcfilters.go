@@ -7,7 +7,7 @@ package wire
 import (
 	"io"
 
-	"github.com/gcash/bchd/chaincfg/chainhash"
+	"github.com/bitcoinsv/bsvd/chaincfg/chainhash"
 )
 
 // MaxGetCFiltersReqRange the maximum number of filters that may be requested in
@@ -23,9 +23,9 @@ type MsgGetCFilters struct {
 	StopHash    chainhash.Hash
 }
 
-// BchDecode decodes r using the bitcoin protocol encoding into the receiver.
+// Bsvdecode decodes r using the bitcoin protocol encoding into the receiver.
 // This is part of the Message interface implementation.
-func (msg *MsgGetCFilters) BchDecode(r io.Reader, pver uint32, _ MessageEncoding) error {
+func (msg *MsgGetCFilters) Bsvdecode(r io.Reader, pver uint32, _ MessageEncoding) error {
 	err := readElement(r, &msg.FilterType)
 	if err != nil {
 		return err
@@ -39,9 +39,9 @@ func (msg *MsgGetCFilters) BchDecode(r io.Reader, pver uint32, _ MessageEncoding
 	return readElement(r, &msg.StopHash)
 }
 
-// BchEncode encodes the receiver to w using the bitcoin protocol encoding.
+// BsvEncode encodes the receiver to w using the bitcoin protocol encoding.
 // This is part of the Message interface implementation.
-func (msg *MsgGetCFilters) BchEncode(w io.Writer, pver uint32, _ MessageEncoding) error {
+func (msg *MsgGetCFilters) BsvEncode(w io.Writer, pver uint32, _ MessageEncoding) error {
 	err := writeElement(w, msg.FilterType)
 	if err != nil {
 		return err

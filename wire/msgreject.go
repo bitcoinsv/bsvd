@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/gcash/bchd/chaincfg/chainhash"
+	"github.com/bitcoinsv/bsvd/chaincfg/chainhash"
 )
 
 // RejectCode represents a numeric value by which a remote peer indicates
@@ -71,13 +71,13 @@ type MsgReject struct {
 	Hash chainhash.Hash
 }
 
-// BchDecode decodes r using the bitcoin protocol encoding into the receiver.
+// Bsvdecode decodes r using the bitcoin protocol encoding into the receiver.
 // This is part of the Message interface implementation.
-func (msg *MsgReject) BchDecode(r io.Reader, pver uint32, enc MessageEncoding) error {
+func (msg *MsgReject) Bsvdecode(r io.Reader, pver uint32, enc MessageEncoding) error {
 	if pver < RejectVersion {
 		str := fmt.Sprintf("reject message invalid for protocol "+
 			"version %d", pver)
-		return messageError("MsgReject.BchDecode", str)
+		return messageError("MsgReject.Bsvdecode", str)
 	}
 
 	// Command that was rejected.
@@ -113,13 +113,13 @@ func (msg *MsgReject) BchDecode(r io.Reader, pver uint32, enc MessageEncoding) e
 	return nil
 }
 
-// BchEncode encodes the receiver to w using the bitcoin protocol encoding.
+// BsvEncode encodes the receiver to w using the bitcoin protocol encoding.
 // This is part of the Message interface implementation.
-func (msg *MsgReject) BchEncode(w io.Writer, pver uint32, enc MessageEncoding) error {
+func (msg *MsgReject) BsvEncode(w io.Writer, pver uint32, enc MessageEncoding) error {
 	if pver < RejectVersion {
 		str := fmt.Sprintf("reject message invalid for protocol "+
 			"version %d", pver)
-		return messageError("MsgReject.BchEncode", str)
+		return messageError("MsgReject.BsvEncode", str)
 	}
 
 	// Command that was rejected.

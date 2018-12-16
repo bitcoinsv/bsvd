@@ -9,11 +9,11 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/gcash/bchd/chaincfg/chainhash"
-	"github.com/gcash/bchd/database"
-	"github.com/gcash/bchd/txscript"
-	"github.com/gcash/bchd/wire"
-	"github.com/gcash/bchutil"
+	"github.com/bitcoinsv/bsvd/chaincfg/chainhash"
+	"github.com/bitcoinsv/bsvd/database"
+	"github.com/bitcoinsv/bsvd/txscript"
+	"github.com/bitcoinsv/bsvd/wire"
+	"github.com/bitcoinsv/bsvutil"
 )
 
 const (
@@ -389,7 +389,7 @@ func (s *utxoCache) addEntry(outpoint wire.OutPoint, entry *UtxoEntry, overwrite
 // FetchTxView returns a local view on the utxo state for the given transaction.
 //
 // This method is safe for concurrent access.
-func (s *utxoCache) FetchTxView(tx *bchutil.Tx) (*UtxoViewpoint, error) {
+func (s *utxoCache) FetchTxView(tx *bsvutil.Tx) (*UtxoViewpoint, error) {
 	s.mtx.Lock()
 	defer s.mtx.Unlock()
 
@@ -424,7 +424,7 @@ func (s *utxoCache) FetchTxView(tx *bchutil.Tx) (*UtxoViewpoint, error) {
 // so the returned view can be examined for duplicate transactions.
 //
 // This function is safe for concurrent access however the returned view is NOT.
-func (b *BlockChain) FetchUtxoView(tx *bchutil.Tx) (*UtxoViewpoint, error) {
+func (b *BlockChain) FetchUtxoView(tx *bsvutil.Tx) (*UtxoViewpoint, error) {
 	b.chainLock.RLock()
 	defer b.chainLock.RUnlock()
 	return b.utxoCache.FetchTxView(tx)
@@ -595,7 +595,7 @@ func (s *utxoCache) Flush(mode FlushMode, bestState *BestState) error {
 // state is invalid.
 //
 // This method should be called with the state lock held.
-func (s *utxoCache) rollBackBlock(block *bchutil.Block, stxos []SpentTxOut) error {
+func (s *utxoCache) rollBackBlock(block *bsvutil.Block, stxos []SpentTxOut) error {
 	return disconnectTransactions(s, block, stxos)
 }
 
@@ -604,7 +604,7 @@ func (s *utxoCache) rollBackBlock(block *bchutil.Block, stxos []SpentTxOut) erro
 // the state is invalid.
 //
 // This method should be called with the state lock held.
-func (s *utxoCache) rollForwardBlock(block *bchutil.Block) error {
+func (s *utxoCache) rollForwardBlock(block *bsvutil.Block) error {
 	// We don't need the collect stxos and we allow overwriting existing entries.
 	return connectTransactions(s, block, nil, true)
 }

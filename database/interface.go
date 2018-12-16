@@ -8,8 +8,8 @@
 package database
 
 import (
-	"github.com/gcash/bchd/chaincfg/chainhash"
-	"github.com/gcash/bchutil"
+	"github.com/bitcoinsv/bsvd/chaincfg/chainhash"
+	"github.com/bitcoinsv/bsvutil"
 )
 
 // Cursor represents a cursor over key/value pairs and nested buckets of a
@@ -227,7 +227,7 @@ type Tx interface {
 	//   - ErrTxClosed if the transaction has already been closed
 	//
 	// Other errors are possible depending on the implementation.
-	StoreBlock(block *bchutil.Block) error
+	StoreBlock(block *bsvutil.Block) error
 
 	// DeleteBlocks will delete all block files which contain blocks before
 	// the provided height. It will not delete the current block.

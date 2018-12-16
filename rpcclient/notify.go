@@ -13,10 +13,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/gcash/bchd/btcjson"
-	"github.com/gcash/bchd/chaincfg/chainhash"
-	"github.com/gcash/bchd/wire"
-	"github.com/gcash/bchutil"
+	"github.com/bitcoinsv/bsvd/btcjson"
+	"github.com/bitcoinsv/bsvd/chaincfg/chainhash"
+	"github.com/bitcoinsv/bsvd/wire"
+	"github.com/bitcoinsv/bsvutil"
 )
 
 var (
@@ -104,7 +104,7 @@ type NotificationHandlers struct {
 	// function is non-nil.  Its parameters differ from OnBlockConnected: it
 	// receives the block's height, header, and relevant transactions.
 	OnFilteredBlockConnected func(height int32, header *wire.BlockHeader,
-		txs []*bchutil.Tx)
+		txs []*bsvutil.Tx)
 
 	// OnBlockDisconnected is invoked when a block is disconnected from the
 	// longest (best) chain.  It will only be invoked if a preceding call to
@@ -128,7 +128,7 @@ type NotificationHandlers struct {
 	// made to register for the notification and the function is non-nil.
 	//
 	// Deprecated: Use OnRelevantTxAccepted instead.
-	OnRecvTx func(transaction *bchutil.Tx, details *btcjson.BlockDetails)
+	OnRecvTx func(transaction *bsvutil.Tx, details *btcjson.BlockDetails)
 
 	// OnRedeemingTx is invoked when a transaction that spends a registered
 	// outpoint is received into the memory pool and also connected to the
@@ -142,19 +142,19 @@ type NotificationHandlers struct {
 	// this to invoked indirectly as the result of a NotifyReceived call.
 	//
 	// Deprecated: Use OnRelevantTxAccepted instead.
-	OnRedeemingTx func(transaction *bchutil.Tx, details *btcjson.BlockDetails)
+	OnRedeemingTx func(transaction *bsvutil.Tx, details *btcjson.BlockDetails)
 
 	// OnRelevantTxAccepted is invoked when an unmined transaction passes
 	// the client's transaction filter.
 	//
-	// NOTE: This is a gcash extension ported from
+	// NOTE: This is a bitcoinsv extension ported from
 	// github.com/decred/dcrrpcclient.
 	OnRelevantTxAccepted func(transaction []byte)
 
 	// OnRescanFinished is invoked after a rescan finishes due to a previous
 	// call to Rescan or RescanEndHeight.  Finished rescans should be
 	// signaled on this notification, rather than relying on the return
-	// result of a rescan request, due to how bchd may send various rescan
+	// result of a rescan request, due to how bsvd may send various rescan
 	// notifications after the rescan request has already returned.
 	//
 	// Deprecated: Not used with RescanBlocks.
@@ -171,7 +171,7 @@ type NotificationHandlers struct {
 	// memory pool.  It will only be invoked if a preceding call to
 	// NotifyNewTransactions with the verbose flag set to false has been
 	// made to register for the notification and the function is non-nil.
-	OnTxAccepted func(hash *chainhash.Hash, amount bchutil.Amount)
+	OnTxAccepted func(hash *chainhash.Hash, amount bsvutil.Amount)
 
 	// OnTxAccepted is invoked when a transaction is accepted into the
 	// memory pool.  It will only be invoked if a preceding call to
@@ -179,23 +179,23 @@ type NotificationHandlers struct {
 	// made to register for the notification and the function is non-nil.
 	OnTxAcceptedVerbose func(txDetails *btcjson.TxRawResult)
 
-	// OnBchdConnected is invoked when a wallet connects or disconnects from
-	// bchd.
+	// OnBsvdConnected is invoked when a wallet connects or disconnects from
+	// bsvd.
 	//
 	// This will only be available when client is connected to a wallet
-	// server such as bchwallet.
-	OnBchdConnected func(connected bool)
+	// server such as bsvwallet.
+	OnBsvdConnected func(connected bool)
 
 	// OnAccountBalance is invoked with account balance updates.
 	//
 	// This will only be available when speaking to a wallet server
-	// such as bchwallet.
-	OnAccountBalance func(account string, balance bchutil.Amount, confirmed bool)
+	// such as bsvwallet.
+	OnAccountBalance func(account string, balance bsvutil.Amount, confirmed bool)
 
 	// OnWalletLockState is invoked when a wallet is locked or unlocked.
 	//
 	// This will only be available when client is connected to a wallet
-	// server such as bchwallet.
+	// server such as bsvwallet.
 	OnWalletLockState func(locked bool)
 
 	// OnUnknownNotification is invoked when an unrecognized notification
@@ -409,22 +409,22 @@ func (c *Client) handleNotification(ntfn *rawNotification) {
 
 		c.ntfnHandlers.OnTxAcceptedVerbose(rawTx)
 
-	// OnBchdConnected
+	// OnBsvdConnected
 	case btcjson.BtcdConnectedNtfnMethod:
 		// Ignore the notification if the client is not interested in
 		// it.
-		if c.ntfnHandlers.OnBchdConnected == nil {
+		if c.ntfnHandlers.OnBsvdConnected == nil {
 			return
 		}
 
-		connected, err := parseBchdConnectedNtfnParams(ntfn.Params)
+		connected, err := parseBsvdConnectedNtfnParams(ntfn.Params)
 		if err != nil {
-			log.Warnf("Received invalid bchd connected "+
+			log.Warnf("Received invalid bsvd connected "+
 				"notification: %v", err)
 			return
 		}
 
-		c.ntfnHandlers.OnBchdConnected(connected)
+		c.ntfnHandlers.OnBsvdConnected(connected)
 
 	// OnAccountBalance
 	case btcjson.AccountBalanceNtfnMethod:
@@ -528,10 +528,10 @@ func parseChainNtfnParams(params []json.RawMessage) (*chainhash.Hash,
 // parseFilteredBlockConnectedParams parses out the parameters included in a
 // filteredblockconnected notification.
 //
-// NOTE: This is a bchd extension ported from github.com/decred/dcrrpcclient
+// NOTE: This is a bsvd extension ported from github.com/decred/dcrrpcclient
 // and requires a websocket connection.
 func parseFilteredBlockConnectedParams(params []json.RawMessage) (int32,
-	*wire.BlockHeader, []*bchutil.Tx, error) {
+	*wire.BlockHeader, []*bsvutil.Tx, error) {
 
 	if len(params) < 3 {
 		return 0, nil, nil, wrongNumParams(len(params))
@@ -565,14 +565,14 @@ func parseFilteredBlockConnectedParams(params []json.RawMessage) (int32,
 	}
 
 	// Create slice of transactions from slice of strings by hex-decoding.
-	transactions := make([]*bchutil.Tx, len(hexTransactions))
+	transactions := make([]*bsvutil.Tx, len(hexTransactions))
 	for i, hexTx := range hexTransactions {
 		transaction, err := hex.DecodeString(hexTx)
 		if err != nil {
 			return 0, nil, nil, err
 		}
 
-		transactions[i], err = bchutil.NewTxFromBytes(transaction)
+		transactions[i], err = bsvutil.NewTxFromBytes(transaction)
 		if err != nil {
 			return 0, nil, nil, err
 		}
@@ -584,7 +584,7 @@ func parseFilteredBlockConnectedParams(params []json.RawMessage) (int32,
 // parseFilteredBlockDisconnectedParams parses out the parameters included in a
 // filteredblockdisconnected notification.
 //
-// NOTE: This is a bchd extension ported from github.com/decred/dcrrpcclient
+// NOTE: This is a bsvd extension ported from github.com/decred/dcrrpcclient
 // and requires a websocket connection.
 func parseFilteredBlockDisconnectedParams(params []json.RawMessage) (int32,
 	*wire.BlockHeader, error) {
@@ -637,7 +637,7 @@ func parseRelevantTxAcceptedParams(params []json.RawMessage) (transaction []byte
 // parseChainTxNtfnParams parses out the transaction and optional details about
 // the block it's mined in from the parameters of recvtx and redeemingtx
 // notifications.
-func parseChainTxNtfnParams(params []json.RawMessage) (*bchutil.Tx,
+func parseChainTxNtfnParams(params []json.RawMessage) (*bsvutil.Tx,
 	*btcjson.BlockDetails, error) {
 
 	if len(params) == 0 || len(params) > 2 {
@@ -675,7 +675,7 @@ func parseChainTxNtfnParams(params []json.RawMessage) (*bchutil.Tx,
 	// TODO: Change recvtx and redeemingtx callback signatures to use
 	// nicer types for details about the block (block hash as a
 	// chainhash.Hash, block time as a time.Time, etc.).
-	return bchutil.NewTx(&msgTx), block, nil
+	return bsvutil.NewTx(&msgTx), block, nil
 }
 
 // parseRescanProgressParams parses out the height of the last rescanned block
@@ -718,7 +718,7 @@ func parseRescanProgressParams(params []json.RawMessage) (*chainhash.Hash, int32
 // parseTxAcceptedNtfnParams parses out the transaction hash and total amount
 // from the parameters of a txaccepted notification.
 func parseTxAcceptedNtfnParams(params []json.RawMessage) (*chainhash.Hash,
-	bchutil.Amount, error) {
+	bsvutil.Amount, error) {
 
 	if len(params) != 2 {
 		return nil, 0, wrongNumParams(len(params))
@@ -739,7 +739,7 @@ func parseTxAcceptedNtfnParams(params []json.RawMessage) (*chainhash.Hash,
 	}
 
 	// Bounds check amount.
-	amt, err := bchutil.NewAmount(famt)
+	amt, err := bsvutil.NewAmount(famt)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -775,9 +775,9 @@ func parseTxAcceptedVerboseNtfnParams(params []json.RawMessage) (*btcjson.TxRawR
 	return &rawTx, nil
 }
 
-// parseBchdConnectedNtfnParams parses out the connection status of bchd
-// and bchwallet from the parameters of a bchdconnected notification.
-func parseBchdConnectedNtfnParams(params []json.RawMessage) (bool, error) {
+// parseBsvdConnectedNtfnParams parses out the connection status of bsvd
+// and bsvwallet from the parameters of a bsvdconnected notification.
+func parseBsvdConnectedNtfnParams(params []json.RawMessage) (bool, error) {
 	if len(params) != 1 {
 		return false, wrongNumParams(len(params))
 	}
@@ -796,7 +796,7 @@ func parseBchdConnectedNtfnParams(params []json.RawMessage) (bool, error) {
 // and whether or not the balance is confirmed or unconfirmed from the
 // parameters of an accountbalance notification.
 func parseAccountBalanceNtfnParams(params []json.RawMessage) (account string,
-	balance bchutil.Amount, confirmed bool, err error) {
+	balance bsvutil.Amount, confirmed bool, err error) {
 
 	if len(params) != 3 {
 		return "", 0, false, wrongNumParams(len(params))
@@ -822,7 +822,7 @@ func parseAccountBalanceNtfnParams(params []json.RawMessage) (account string,
 	}
 
 	// Bounds check amount.
-	bal, err := bchutil.NewAmount(fbal)
+	bal, err := bsvutil.NewAmount(fbal)
 	if err != nil {
 		return "", 0, false, err
 	}
@@ -871,7 +871,7 @@ func (r FutureNotifyBlocksResult) Receive() error {
 //
 // See NotifyBlocks for the blocking version and more details.
 //
-// NOTE: This is a bchd extension and requires a websocket connection.
+// NOTE: This is a bsvd extension and requires a websocket connection.
 func (c *Client) NotifyBlocksAsync() FutureNotifyBlocksResult {
 	// Not supported in HTTP POST mode.
 	if c.config.HTTPPostMode {
@@ -897,7 +897,7 @@ func (c *Client) NotifyBlocksAsync() FutureNotifyBlocksResult {
 // The notifications delivered as a result of this call will be via one of
 // OnBlockConnected or OnBlockDisconnected.
 //
-// NOTE: This is a bchd extension and requires a websocket connection.
+// NOTE: This is a bsvd extension and requires a websocket connection.
 func (c *Client) NotifyBlocks() error {
 	return c.NotifyBlocksAsync().Receive()
 }
@@ -949,7 +949,7 @@ func newOutPointFromWire(op *wire.OutPoint) btcjson.OutPoint {
 //
 // See NotifySpent for the blocking version and more details.
 //
-// NOTE: This is a bchd extension and requires a websocket connection.
+// NOTE: This is a bsvd extension and requires a websocket connection.
 //
 // Deprecated: Use LoadTxFilterAsync instead.
 func (c *Client) NotifySpentAsync(outpoints []*wire.OutPoint) FutureNotifySpentResult {
@@ -981,7 +981,7 @@ func (c *Client) NotifySpentAsync(outpoints []*wire.OutPoint) FutureNotifySpentR
 // The notifications delivered as a result of this call will be via
 // OnRedeemingTx.
 //
-// NOTE: This is a bchd extension and requires a websocket connection.
+// NOTE: This is a bsvd extension and requires a websocket connection.
 //
 // Deprecated: Use LoadTxFilter instead.
 func (c *Client) NotifySpent(outpoints []*wire.OutPoint) error {
@@ -1005,7 +1005,7 @@ func (r FutureNotifyNewTransactionsResult) Receive() error {
 //
 // See NotifyNewTransactionsAsync for the blocking version and more details.
 //
-// NOTE: This is a bchd extension and requires a websocket connection.
+// NOTE: This is a bsvd extension and requires a websocket connection.
 func (c *Client) NotifyNewTransactionsAsync(verbose bool) FutureNotifyNewTransactionsResult {
 	// Not supported in HTTP POST mode.
 	if c.config.HTTPPostMode {
@@ -1032,7 +1032,7 @@ func (c *Client) NotifyNewTransactionsAsync(verbose bool) FutureNotifyNewTransac
 // OnTxAccepted (when verbose is false) or OnTxAcceptedVerbose (when verbose is
 // true).
 //
-// NOTE: This is a bchd extension and requires a websocket connection.
+// NOTE: This is a bsvd extension and requires a websocket connection.
 func (c *Client) NotifyNewTransactions(verbose bool) error {
 	return c.NotifyNewTransactionsAsync(verbose).Receive()
 }
@@ -1076,10 +1076,10 @@ func (c *Client) notifyReceivedInternal(addresses []string) FutureNotifyReceived
 //
 // See NotifyReceived for the blocking version and more details.
 //
-// NOTE: This is a bchd extension and requires a websocket connection.
+// NOTE: This is a bsvd extension and requires a websocket connection.
 //
 // Deprecated: Use LoadTxFilterAsync instead.
-func (c *Client) NotifyReceivedAsync(addresses []bchutil.Address) FutureNotifyReceivedResult {
+func (c *Client) NotifyReceivedAsync(addresses []bsvutil.Address) FutureNotifyReceivedResult {
 	// Not supported in HTTP POST mode.
 	if c.config.HTTPPostMode {
 		return newFutureError(ErrWebsocketsRequired)
@@ -1116,10 +1116,10 @@ func (c *Client) NotifyReceivedAsync(addresses []bchutil.Address) FutureNotifyRe
 // of the outpoints which are automatically registered upon receipt of funds to
 // the address).
 //
-// NOTE: This is a bchd extension and requires a websocket connection.
+// NOTE: This is a bsvd extension and requires a websocket connection.
 //
 // Deprecated: Use LoadTxFilter instead.
-func (c *Client) NotifyReceived(addresses []bchutil.Address) error {
+func (c *Client) NotifyReceived(addresses []bsvutil.Address) error {
 	return c.NotifyReceivedAsync(addresses).Receive()
 }
 
@@ -1148,11 +1148,11 @@ func (r FutureRescanResult) Receive() error {
 // callback for a good callsite to reissue rescan requests on connect and
 // reconnect.
 //
-// NOTE: This is a bchd extension and requires a websocket connection.
+// NOTE: This is a bsvd extension and requires a websocket connection.
 //
 // Deprecated: Use RescanBlocksAsync instead.
 func (c *Client) RescanAsync(startBlock *chainhash.Hash,
-	addresses []bchutil.Address,
+	addresses []bsvutil.Address,
 	outpoints []*wire.OutPoint) FutureRescanResult {
 
 	// Not supported in HTTP POST mode.
@@ -1213,11 +1213,11 @@ func (c *Client) RescanAsync(startBlock *chainhash.Hash,
 // callback for a good callsite to reissue rescan requests on connect and
 // reconnect.
 //
-// NOTE: This is a bchd extension and requires a websocket connection.
+// NOTE: This is a bsvd extension and requires a websocket connection.
 //
 // Deprecated: Use RescanBlocks instead.
 func (c *Client) Rescan(startBlock *chainhash.Hash,
-	addresses []bchutil.Address,
+	addresses []bsvutil.Address,
 	outpoints []*wire.OutPoint) error {
 
 	return c.RescanAsync(startBlock, addresses, outpoints).Receive()
@@ -1229,11 +1229,11 @@ func (c *Client) Rescan(startBlock *chainhash.Hash,
 //
 // See RescanEndBlock for the blocking version and more details.
 //
-// NOTE: This is a bchd extension and requires a websocket connection.
+// NOTE: This is a bsvd extension and requires a websocket connection.
 //
 // Deprecated: Use RescanBlocksAsync instead.
 func (c *Client) RescanEndBlockAsync(startBlock *chainhash.Hash,
-	addresses []bchutil.Address, outpoints []*wire.OutPoint,
+	addresses []bsvutil.Address, outpoints []*wire.OutPoint,
 	endBlock *chainhash.Hash) FutureRescanResult {
 
 	// Not supported in HTTP POST mode.
@@ -1291,11 +1291,11 @@ func (c *Client) RescanEndBlockAsync(startBlock *chainhash.Hash,
 //
 // See Rescan to also perform a rescan through current end of the longest chain.
 //
-// NOTE: This is a bchd extension and requires a websocket connection.
+// NOTE: This is a bsvd extension and requires a websocket connection.
 //
 // Deprecated: Use RescanBlocks instead.
 func (c *Client) RescanEndHeight(startBlock *chainhash.Hash,
-	addresses []bchutil.Address, outpoints []*wire.OutPoint,
+	addresses []bsvutil.Address, outpoints []*wire.OutPoint,
 	endBlock *chainhash.Hash) error {
 
 	return c.RescanEndBlockAsync(startBlock, addresses, outpoints,
@@ -1305,14 +1305,14 @@ func (c *Client) RescanEndHeight(startBlock *chainhash.Hash,
 // FutureLoadTxFilterResult is a future promise to deliver the result
 // of a LoadTxFilterAsync RPC invocation (or an applicable error).
 //
-// NOTE: This is a bchd extension ported from github.com/decred/dcrrpcclient
+// NOTE: This is a bsvd extension ported from github.com/decred/dcrrpcclient
 // and requires a websocket connection.
 type FutureLoadTxFilterResult chan *response
 
 // Receive waits for the response promised by the future and returns an error
 // if the registration was not successful.
 //
-// NOTE: This is a bchd extension ported from github.com/decred/dcrrpcclient
+// NOTE: This is a bsvd extension ported from github.com/decred/dcrrpcclient
 // and requires a websocket connection.
 func (r FutureLoadTxFilterResult) Receive() error {
 	_, err := receiveFuture(r)
@@ -1325,9 +1325,9 @@ func (r FutureLoadTxFilterResult) Receive() error {
 //
 // See LoadTxFilter for the blocking version and more details.
 //
-// NOTE: This is a bchd extension ported from github.com/decred/dcrrpcclient
+// NOTE: This is a bsvd extension ported from github.com/decred/dcrrpcclient
 // and requires a websocket connection.
-func (c *Client) LoadTxFilterAsync(reload bool, addresses []bchutil.Address,
+func (c *Client) LoadTxFilterAsync(reload bool, addresses []bsvutil.Address,
 	outPoints []wire.OutPoint) FutureLoadTxFilterResult {
 
 	addrStrs := make([]string, len(addresses))
@@ -1350,8 +1350,8 @@ func (c *Client) LoadTxFilterAsync(reload bool, addresses []bchutil.Address,
 // filter.  The filter is consistently updated based on inspected transactions
 // during mempool acceptance, block acceptance, and for all rescanned blocks.
 //
-// NOTE: This is a bchd extension ported from github.com/decred/dcrrpcclient
+// NOTE: This is a bsvd extension ported from github.com/decred/dcrrpcclient
 // and requires a websocket connection.
-func (c *Client) LoadTxFilter(reload bool, addresses []bchutil.Address, outPoints []wire.OutPoint) error {
+func (c *Client) LoadTxFilter(reload bool, addresses []bsvutil.Address, outPoints []wire.OutPoint) error {
 	return c.LoadTxFilterAsync(reload, addresses, outPoints).Receive()
 }

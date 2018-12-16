@@ -7,7 +7,7 @@ package blockchain
 import (
 	"testing"
 
-	"github.com/gcash/bchd/chaincfg/chainhash"
+	"github.com/bitcoinsv/bsvd/chaincfg/chainhash"
 )
 
 // TestThresholdStateStringer tests the stringized output for the

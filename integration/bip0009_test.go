@@ -13,10 +13,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gcash/bchd/blockchain"
-	"github.com/gcash/bchd/chaincfg"
-	"github.com/gcash/bchd/chaincfg/chainhash"
-	"github.com/gcash/bchd/integration/rpctest"
+	"github.com/bitcoinsv/bsvd/blockchain"
+	"github.com/bitcoinsv/bsvd/chaincfg"
+	"github.com/bitcoinsv/bsvd/chaincfg/chainhash"
+	"github.com/bitcoinsv/bsvd/integration/rpctest"
 )
 
 const (
@@ -301,7 +301,7 @@ func TestBIP0009(t *testing.T) {
 	testBIP0009(t, "dummy", chaincfg.DeploymentTestDummy)
 }
 
-// TestBIP0009Mining ensures blocks built via bchd's CPU miner follow the rules
+// TestBIP0009Mining ensures blocks built via bsvd's CPU miner follow the rules
 // set forth by BIP0009 by using the test dummy deployment.
 //
 // Overview:
@@ -353,7 +353,7 @@ func TestBIP0009Mining(t *testing.T) {
 	// in the version.
 	//
 	// The last generated block should now have the test bit set in the
-	// version since the bchd mining code will have recognized the test
+	// version since the bsvd mining code will have recognized the test
 	// dummy deployment as started.
 	confirmationWindow := r.ActiveNet.MinerConfirmationWindow
 	numNeeded := confirmationWindow - 1
@@ -370,7 +370,7 @@ func TestBIP0009Mining(t *testing.T) {
 	// Generate enough blocks to reach the next state transition.
 	//
 	// The last generated block should still have the test bit set in the
-	// version since the bchd mining code will have recognized the test
+	// version since the bsvd mining code will have recognized the test
 	// dummy deployment as locked in.
 	hashes, err = r.Node.Generate(confirmationWindow)
 	if err != nil {
@@ -388,7 +388,7 @@ func TestBIP0009Mining(t *testing.T) {
 	// in the version since it is still locked in.
 	//
 	// The last generated block should NOT have the test bit set in the
-	// version since the bchd mining code will have recognized the test
+	// version since the bsvd mining code will have recognized the test
 	// dummy deployment as activated and thus there is no longer any need
 	// to set the bit.
 	hashes, err = r.Node.Generate(confirmationWindow)

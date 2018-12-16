@@ -12,13 +12,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gcash/bchd/bchec"
-	"github.com/gcash/bchd/blockchain"
-	"github.com/gcash/bchd/chaincfg"
-	"github.com/gcash/bchd/chaincfg/chainhash"
-	"github.com/gcash/bchd/txscript"
-	"github.com/gcash/bchd/wire"
-	"github.com/gcash/bchutil"
+	"github.com/bitcoinsv/bsvd/bsvec"
+	"github.com/bitcoinsv/bsvd/blockchain"
+	"github.com/bitcoinsv/bsvd/chaincfg"
+	"github.com/bitcoinsv/bsvd/chaincfg/chainhash"
+	"github.com/bitcoinsv/bsvd/txscript"
+	"github.com/bitcoinsv/bsvd/wire"
+	"github.com/bitcoinsv/bsvutil"
 )
 
 const MockMaxUtxosPerBlock = 32000000 / wire.MinTxOutPayload
@@ -39,7 +39,7 @@ type fakeChain struct {
 // view can be examined for duplicate transactions.
 //
 // This function is safe for concurrent access however the returned view is NOT.
-func (s *fakeChain) FetchUtxoView(tx *bchutil.Tx) (*blockchain.UtxoViewpoint, error) {
+func (s *fakeChain) FetchUtxoView(tx *bsvutil.Tx) (*blockchain.UtxoViewpoint, error) {
 	s.RLock()
 	defer s.RUnlock()
 
@@ -99,7 +99,7 @@ func (s *fakeChain) SetMedianTimePast(mtp time.Time) {
 
 // CalcSequenceLock returns the current sequence lock for the passed
 // transaction associated with the fake chain instance.
-func (s *fakeChain) CalcSequenceLock(tx *bchutil.Tx,
+func (s *fakeChain) CalcSequenceLock(tx *bsvutil.Tx,
 	view *blockchain.UtxoViewpoint) (*blockchain.SequenceLock, error) {
 
 	return &blockchain.SequenceLock{
@@ -112,16 +112,16 @@ func (s *fakeChain) CalcSequenceLock(tx *bchutil.Tx,
 // amount associated with it.
 type spendableOutput struct {
 	outPoint wire.OutPoint
-	amount   bchutil.Amount
+	amount   bsvutil.Amount
 }
 
 // txOutToSpendableOut returns a spendable output given a transaction and index
 // of the output to use.  This is useful as a convenience when creating test
 // transactions.
-func txOutToSpendableOut(tx *bchutil.Tx, outputNum uint32) spendableOutput {
+func txOutToSpendableOut(tx *bsvutil.Tx, outputNum uint32) spendableOutput {
 	return spendableOutput{
 		outPoint: wire.OutPoint{Hash: *tx.Hash(), Index: outputNum},
-		amount:   bchutil.Amount(tx.MsgTx().TxOut[outputNum].Value),
+		amount:   bsvutil.Amount(tx.MsgTx().TxOut[outputNum].Value),
 	}
 }
 
@@ -134,8 +134,8 @@ type poolHarness struct {
 	//
 	// payAddr is the p2sh address for the signing key and is used for the
 	// payment address throughout the tests.
-	signKey     *bchec.PrivateKey
-	payAddr     bchutil.Address
+	signKey     *bsvec.PrivateKey
+	payAddr     bsvutil.Address
 	payScript   []byte
 	chainParams *chaincfg.Params
 
@@ -148,7 +148,7 @@ type poolHarness struct {
 // address associated with the harness.  It automatically uses a standard
 // signature script that starts with the block height that is required by
 // version 2 blocks.
-func (p *poolHarness) CreateCoinbaseTx(blockHeight int32, numOutputs uint32) (*bchutil.Tx, error) {
+func (p *poolHarness) CreateCoinbaseTx(blockHeight int32, numOutputs uint32) (*bsvutil.Tx, error) {
 	// Create standard coinbase script.
 	extraNonce := int64(0)
 	coinbaseScript, err := txscript.NewScriptBuilder().
@@ -182,17 +182,17 @@ func (p *poolHarness) CreateCoinbaseTx(blockHeight int32, numOutputs uint32) (*b
 		})
 	}
 
-	return bchutil.NewTx(tx), nil
+	return bsvutil.NewTx(tx), nil
 }
 
 // CreateSignedTx creates a new signed transaction that consumes the provided
 // inputs and generates the provided number of outputs by evenly splitting the
 // total input amount.  All outputs will be to the payment script associated
 // with the harness and all inputs are assumed to do the same.
-func (p *poolHarness) CreateSignedTx(inputs []spendableOutput, numOutputs uint32) (*bchutil.Tx, error) {
+func (p *poolHarness) CreateSignedTx(inputs []spendableOutput, numOutputs uint32) (*bsvutil.Tx, error) {
 	// Calculate the total input amount and split it amongst the requested
 	// number of outputs.
-	var totalInput bchutil.Amount
+	var totalInput bsvutil.Amount
 	for _, input := range inputs {
 		totalInput += input.amount
 	}
@@ -230,15 +230,15 @@ func (p *poolHarness) CreateSignedTx(inputs []spendableOutput, numOutputs uint32
 		tx.TxIn[i].SignatureScript = sigScript
 	}
 
-	return bchutil.NewTx(tx), nil
+	return bsvutil.NewTx(tx), nil
 }
 
 // CreateTxChain creates a chain of zero-fee transactions (each subsequent
 // transaction spends the entire amount from the previous one) with the first
 // one spending the provided outpoint.  Each transaction spends the entire
 // amount of the previous one and as such does not include any fees.
-func (p *poolHarness) CreateTxChain(firstOutput spendableOutput, numTxns uint32) ([]*bchutil.Tx, error) {
-	txChain := make([]*bchutil.Tx, 0, numTxns)
+func (p *poolHarness) CreateTxChain(firstOutput spendableOutput, numTxns uint32) ([]*bsvutil.Tx, error) {
+	txChain := make([]*bsvutil.Tx, 0, numTxns)
 	prevOutPoint := firstOutput.outPoint
 	spendableAmount := firstOutput.amount
 	for i := uint32(0); i < numTxns; i++ {
@@ -264,7 +264,7 @@ func (p *poolHarness) CreateTxChain(firstOutput spendableOutput, numTxns uint32)
 		}
 		tx.TxIn[0].SignatureScript = sigScript
 
-		txChain = append(txChain, bchutil.NewTx(tx))
+		txChain = append(txChain, bsvutil.NewTx(tx))
 
 		// Next transaction uses outputs from this one.
 		prevOutPoint = wire.OutPoint{Hash: tx.TxHash(), Index: 0}
@@ -285,12 +285,12 @@ func newPoolHarness(chainParams *chaincfg.Params) (*poolHarness, []spendableOutp
 	if err != nil {
 		return nil, nil, err
 	}
-	signKey, signPub := bchec.PrivKeyFromBytes(bchec.S256(), keyBytes)
+	signKey, signPub := bsvec.PrivKeyFromBytes(bsvec.S256(), keyBytes)
 
 	// Generate associated pay-to-script-hash address and resulting payment
 	// script.
 	pubKeyBytes := signPub.SerializeCompressed()
-	payPubKeyAddr, err := bchutil.NewAddressPubKey(pubKeyBytes, chainParams)
+	payPubKeyAddr, err := bsvutil.NewAddressPubKey(pubKeyBytes, chainParams)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -363,7 +363,7 @@ type testContext struct {
 // orphan pool and transaction pool status.  It also further determines if it
 // should be reported as available by the HaveTransaction function based upon
 // the two flags and tests that condition as well.
-func testPoolMembership(tc *testContext, tx *bchutil.Tx, inOrphanPool, inTxPool bool) {
+func testPoolMembership(tc *testContext, tx *bsvutil.Tx, inOrphanPool, inTxPool bool) {
 	txHash := tx.Hash()
 	gotOrphanPool := tc.harness.txPool.IsOrphanInPool(txHash)
 	if inOrphanPool != gotOrphanPool {
@@ -553,7 +553,7 @@ func TestOrphanEviction(t *testing.T) {
 
 	// Figure out which transactions were evicted and make sure the number
 	// evicted matches the expected number.
-	var evictedTxns []*bchutil.Tx
+	var evictedTxns []*bsvutil.Tx
 	for _, tx := range chainedTxns[1:] {
 		if !harness.txPool.IsOrphanInPool(tx.Hash()) {
 			evictedTxns = append(evictedTxns, tx)
@@ -618,7 +618,7 @@ func TestBasicOrphanRemoval(t *testing.T) {
 	// Attempt to remove an orphan that has no redeemers and is not present,
 	// and ensure the state of all other orphans are unaffected.
 	nonChainedOrphanTx, err := harness.CreateSignedTx([]spendableOutput{{
-		amount:   bchutil.Amount(5000000000),
+		amount:   bsvutil.Amount(5000000000),
 		outPoint: wire.OutPoint{Hash: chainhash.Hash{}, Index: 0},
 	}}, 1)
 	if err != nil {

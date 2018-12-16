@@ -8,16 +8,16 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/gcash/bchd/bchec"
-	"github.com/gcash/bchd/chaincfg"
-	"github.com/gcash/bchd/wire"
-	"github.com/gcash/bchutil"
+	"github.com/bitcoinsv/bsvd/bsvec"
+	"github.com/bitcoinsv/bsvd/chaincfg"
+	"github.com/bitcoinsv/bsvd/wire"
+	"github.com/bitcoinsv/bsvutil"
 )
 
 // RawTxInSignature returns the serialized ECDSA signature for the input idx of
 // the given transaction, with hashType appended to it.
 func RawTxInSignature(tx *wire.MsgTx, idx int, subScript []byte,
-	hashType SigHashType, key *bchec.PrivateKey, amt int64) ([]byte, error) {
+	hashType SigHashType, key *bsvec.PrivateKey, amt int64) ([]byte, error) {
 
 	// If the forkID was not passed in with the hashtype then add it here
 	if hashType&SigHashForkID != SigHashForkID {
@@ -40,7 +40,7 @@ func RawTxInSignature(tx *wire.MsgTx, idx int, subScript []byte,
 // LegacyTxInSignature generates a signature using the pre-uahf signature
 // hashing algorithm
 func LegacyTxInSignature(tx *wire.MsgTx, idx int, subScript []byte,
-	hashType SigHashType, key *bchec.PrivateKey) ([]byte, error) {
+	hashType SigHashType, key *bsvec.PrivateKey) ([]byte, error) {
 
 	script, _ := parseScript(subScript)
 	hash, err := calcLegacySignatureHash(script, hashType, tx, idx)
@@ -55,7 +55,7 @@ func LegacyTxInSignature(tx *wire.MsgTx, idx int, subScript []byte,
 	return append(signature.Serialize(), byte(hashType)), nil
 }
 
-// SignatureScript creates an input signature script for tx to spend BCH sent
+// SignatureScript creates an input signature script for tx to spend BSV sent
 // from a previous output to the owner of privKey. tx must include all
 // transaction inputs and outputs, however txin scripts are allowed to be filled
 // or empty. The returned script is calculated to be used as the idx'th txin
@@ -64,13 +64,13 @@ func LegacyTxInSignature(tx *wire.MsgTx, idx int, subScript []byte,
 // uncompressed format based on compress. This format must match the same format
 // used to generate the payment address, or the script validation will fail.
 func SignatureScript(tx *wire.MsgTx, idx int, amt int64, subscript []byte,
-	hashType SigHashType, privKey *bchec.PrivateKey, compress bool) ([]byte, error) {
+	hashType SigHashType, privKey *bsvec.PrivateKey, compress bool) ([]byte, error) {
 	sig, err := RawTxInSignature(tx, idx, subscript, hashType, privKey, amt)
 	if err != nil {
 		return nil, err
 	}
 
-	pk := (*bchec.PublicKey)(&privKey.PublicKey)
+	pk := (*bsvec.PublicKey)(&privKey.PublicKey)
 	var pkData []byte
 	if compress {
 		pkData = pk.SerializeCompressed()
@@ -84,13 +84,13 @@ func SignatureScript(tx *wire.MsgTx, idx int, amt int64, subscript []byte,
 // LegacySignatureScript is the same as SignatureScript except it uses the legacy
 // signature hashing algorithm.
 func LegacySignatureScript(tx *wire.MsgTx, idx int, subscript []byte,
-	hashType SigHashType, privKey *bchec.PrivateKey, compress bool) ([]byte, error) {
+	hashType SigHashType, privKey *bsvec.PrivateKey, compress bool) ([]byte, error) {
 	sig, err := LegacyTxInSignature(tx, idx, subscript, hashType, privKey)
 	if err != nil {
 		return nil, err
 	}
 
-	pk := (*bchec.PublicKey)(&privKey.PublicKey)
+	pk := (*bsvec.PublicKey)(&privKey.PublicKey)
 	var pkData []byte
 	if compress {
 		pkData = pk.SerializeCompressed()
@@ -102,7 +102,7 @@ func LegacySignatureScript(tx *wire.MsgTx, idx int, subscript []byte,
 }
 
 func p2pkSignatureScript(tx *wire.MsgTx, idx int, amt int64, subScript []byte,
-	hashType SigHashType, privKey *bchec.PrivateKey) ([]byte, error) {
+	hashType SigHashType, privKey *bsvec.PrivateKey) ([]byte, error) {
 	sig, err := RawTxInSignature(tx, idx, subScript, hashType, privKey, amt)
 	if err != nil {
 		return nil, err
@@ -117,7 +117,7 @@ func p2pkSignatureScript(tx *wire.MsgTx, idx int, amt int64, subScript []byte,
 // legal to not be able to sign any of the outputs, no error is returned.
 
 func signMultiSig(tx *wire.MsgTx, idx int, amt int64, subScript []byte, hashType SigHashType,
-	addresses []bchutil.Address, nRequired int, kdb KeyDB) ([]byte, bool) {
+	addresses []bsvutil.Address, nRequired int, kdb KeyDB) ([]byte, bool) {
 	// We start with a single OP_FALSE to work around the (now standard)
 	// but in the reference implementation that causes a spurious pop at
 	// the end of OP_CHECKMULTISIG.
@@ -147,7 +147,7 @@ func signMultiSig(tx *wire.MsgTx, idx int, amt int64, subScript []byte, hashType
 
 func sign(chainParams *chaincfg.Params, tx *wire.MsgTx, idx int, amt int64,
 	subScript []byte, hashType SigHashType, kdb KeyDB, sdb ScriptDB) ([]byte,
-	ScriptClass, []bchutil.Address, int, error) {
+	ScriptClass, []bsvutil.Address, int, error) {
 
 	class, addresses, nrequired, err := ExtractPkScriptAddrs(subScript,
 		chainParams)
@@ -211,7 +211,7 @@ func sign(chainParams *chaincfg.Params, tx *wire.MsgTx, idx int, amt int64,
 // function with addresses, class and nrequired that do not match pkScript is
 // an error and results in undefined behaviour.
 func mergeScripts(chainParams *chaincfg.Params, tx *wire.MsgTx, idx int,
-	amt int64, pkScript []byte, class ScriptClass, addresses []bchutil.Address, nRequired int,
+	amt int64, pkScript []byte, class ScriptClass, addresses []bsvutil.Address, nRequired int,
 	sigScript, prevScript []byte) ([]byte, error) {
 
 	// TODO: the scripthash and multisig paths here are overly
@@ -280,7 +280,7 @@ func mergeScripts(chainParams *chaincfg.Params, tx *wire.MsgTx, idx int,
 // pkScript. Since this function is internal only we assume that the arguments
 // have come from other functions internally and thus are all consistent with
 // each other, behaviour is undefined if this contract is broken.
-func mergeMultiSig(tx *wire.MsgTx, idx int, amt int64, addresses []bchutil.Address,
+func mergeMultiSig(tx *wire.MsgTx, idx int, amt int64, addresses []bsvutil.Address,
 	nRequired int, pkScript, sigScript, prevScript []byte) ([]byte, error) {
 
 	// This is an internal only function and we already parsed this script
@@ -330,7 +330,7 @@ sigLoop:
 		tSig := sig[:len(sig)-1]
 		hashType := SigHashType(sig[len(sig)-1])
 
-		pSig, err := bchec.ParseDERSignature(tSig, bchec.S256())
+		pSig, err := bsvec.ParseDERSignature(tSig, bsvec.S256())
 		if err != nil {
 			continue
 		}
@@ -350,7 +350,7 @@ sigLoop:
 			// All multisig addresses should be pubkey addresses
 			// it is an error to call this internal function with
 			// bad input.
-			pkaddr := addr.(*bchutil.AddressPubKey)
+			pkaddr := addr.(*bsvutil.AddressPubKey)
 
 			pubKey := pkaddr.PubKey()
 
@@ -396,14 +396,14 @@ sigLoop:
 // KeyDB is an interface type provided to SignTxOutput, it encapsulates
 // any user state required to get the private keys for an address.
 type KeyDB interface {
-	GetKey(bchutil.Address) (*bchec.PrivateKey, bool, error)
+	GetKey(bsvutil.Address) (*bsvec.PrivateKey, bool, error)
 }
 
 // KeyClosure implements KeyDB with a closure.
-type KeyClosure func(bchutil.Address) (*bchec.PrivateKey, bool, error)
+type KeyClosure func(bsvutil.Address) (*bsvec.PrivateKey, bool, error)
 
 // GetKey implements KeyDB by returning the result of calling the closure.
-func (kc KeyClosure) GetKey(address bchutil.Address) (*bchec.PrivateKey,
+func (kc KeyClosure) GetKey(address bsvutil.Address) (*bsvec.PrivateKey,
 	bool, error) {
 	return kc(address)
 }
@@ -411,14 +411,14 @@ func (kc KeyClosure) GetKey(address bchutil.Address) (*bchec.PrivateKey,
 // ScriptDB is an interface type provided to SignTxOutput, it encapsulates any
 // user state required to get the scripts for an pay-to-script-hash address.
 type ScriptDB interface {
-	GetScript(bchutil.Address) ([]byte, error)
+	GetScript(bsvutil.Address) ([]byte, error)
 }
 
 // ScriptClosure implements ScriptDB with a closure.
-type ScriptClosure func(bchutil.Address) ([]byte, error)
+type ScriptClosure func(bsvutil.Address) ([]byte, error)
 
 // GetScript implements ScriptDB by returning the result of calling the closure.
-func (sc ScriptClosure) GetScript(address bchutil.Address) ([]byte, error) {
+func (sc ScriptClosure) GetScript(address bsvutil.Address) ([]byte, error) {
 	return sc(address)
 }
 

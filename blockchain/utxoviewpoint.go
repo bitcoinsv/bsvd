@@ -7,10 +7,10 @@ package blockchain
 import (
 	"fmt"
 
-	"github.com/gcash/bchd/chaincfg/chainhash"
-	"github.com/gcash/bchd/txscript"
-	"github.com/gcash/bchd/wire"
-	"github.com/gcash/bchutil"
+	"github.com/bitcoinsv/bsvd/chaincfg/chainhash"
+	"github.com/bitcoinsv/bsvd/txscript"
+	"github.com/bitcoinsv/bsvd/wire"
+	"github.com/bitcoinsv/bsvutil"
 )
 
 // UtxoViewpoint represents a view into the set of unspent transaction outputs
@@ -92,7 +92,7 @@ func (view *UtxoViewpoint) addTxOut(outpoint wire.OutPoint, txOut *wire.TxOut, i
 // it exists and is not provably unspendable.  When the view already has an
 // entry for the output, it will be marked unspent.  All fields will be updated
 // for existing entries since it's possible it has changed during a reorg.
-func (view *UtxoViewpoint) AddTxOut(tx *bchutil.Tx, txOutIdx uint32, blockHeight int32) {
+func (view *UtxoViewpoint) AddTxOut(tx *bsvutil.Tx, txOutIdx uint32, blockHeight int32) {
 	// Can't add an output for an out of bounds index.
 	if txOutIdx >= uint32(len(tx.MsgTx().TxOut)) {
 		return
@@ -111,7 +111,7 @@ func (view *UtxoViewpoint) AddTxOut(tx *bchutil.Tx, txOutIdx uint32, blockHeight
 // unspendable to the view.  When the view already has entries for any of the
 // outputs, they are simply marked unspent.  All fields will be updated for
 // existing entries since it's possible it has changed during a reorg.
-func (view *UtxoViewpoint) AddTxOuts(tx *bchutil.Tx, blockHeight int32) {
+func (view *UtxoViewpoint) AddTxOuts(tx *bsvutil.Tx, blockHeight int32) {
 	// Loop all of the transaction outputs and add those which are not
 	// provably unspendable.
 	isCoinBase := IsCoinBase(tx)
@@ -131,7 +131,7 @@ func (view *UtxoViewpoint) AddTxOuts(tx *bchutil.Tx, blockHeight int32) {
 // by the transactions in the given block to the view.  In particular, referenced
 // entries that are earlier in the block are added to the view and entries that
 // are already in the view are not modified.
-func (view *UtxoViewpoint) addInputUtxos(source utxoView, block *bchutil.Block, ignoreOutOfOrder bool) error {
+func (view *UtxoViewpoint) addInputUtxos(source utxoView, block *bsvutil.Block, ignoreOutOfOrder bool) error {
 	// Build a map of in-flight transactions because some of the inputs in
 	// this block could be referencing other transactions earlier in this
 	// block which are not yet in the chain.
@@ -167,7 +167,7 @@ func (view *UtxoViewpoint) addInputUtxos(source utxoView, block *bchutil.Block, 
 	return nil
 }
 
-func addTxOuts(view utxoView, tx *bchutil.Tx, blockHeight int32, overwrite bool) error {
+func addTxOuts(view utxoView, tx *bsvutil.Tx, blockHeight int32, overwrite bool) error {
 	// Add the transaction's outputs as available utxos.
 	isCoinBase := IsCoinBase(tx)
 	prevOut := wire.OutPoint{Hash: *tx.Hash()}
@@ -206,7 +206,7 @@ func addTxOuts(view utxoView, tx *bchutil.Tx, blockHeight int32, overwrite bool)
 
 // spendTransactionInputs spends the referenced utxos by marking them spent in the view and,
 // if a slice was provided for the spent txout details, append an entry to it.
-func spendTransactionInputs(view utxoView, tx *bchutil.Tx, stxos *[]SpentTxOut) error {
+func spendTransactionInputs(view utxoView, tx *bsvutil.Tx, stxos *[]SpentTxOut) error {
 	// Spend the referenced utxos by marking them spent in the view and,
 	// if a slice was provided for the spent txout details, append an entry
 	// to it.
@@ -251,7 +251,7 @@ func spendTransactionInputs(view utxoView, tx *bchutil.Tx, stxos *[]SpentTxOut) 
 //
 // If you iterate over a block of transactions and call connectTransaction on
 // each one, you will necessarily validate the topological order on each one.
-func connectTransaction(view utxoView, tx *bchutil.Tx, blockHeight int32, stxos *[]SpentTxOut, overwrite bool) error {
+func connectTransaction(view utxoView, tx *bsvutil.Tx, blockHeight int32, stxos *[]SpentTxOut, overwrite bool) error {
 	// Skip input processing when tx is coinbase.
 	if !IsCoinBase(tx) {
 		spendTransactionInputs(view, tx, stxos)
@@ -270,7 +270,7 @@ func connectTransaction(view utxoView, tx *bchutil.Tx, blockHeight int32, stxos 
 //
 // This function does NOT validate topological order and thus should not be
 // used when topological order is needed.
-func connectTransactions(view utxoView, block *bchutil.Block, stxos *[]SpentTxOut, overwrite bool) error {
+func connectTransactions(view utxoView, block *bsvutil.Block, stxos *[]SpentTxOut, overwrite bool) error {
 	for _, tx := range block.Transactions() {
 		err := addTxOuts(view, tx, block.Height(), overwrite)
 		if err != nil {
@@ -295,7 +295,7 @@ func connectTransactions(view utxoView, block *bchutil.Block, stxos *[]SpentTxOu
 //
 // This function is safe to use on both TTOR and CTOR blocks. It will not,
 // however, validate any ordering.
-func disconnectTransactions(view utxoView, block *bchutil.Block, stxos []SpentTxOut) error {
+func disconnectTransactions(view utxoView, block *bsvutil.Block, stxos []SpentTxOut) error {
 	// Sanity check the correct number of stxos are provided.
 	if len(stxos) != countSpentOutputs(block) {
 		return AssertError("disconnectTransactions called with bad " +

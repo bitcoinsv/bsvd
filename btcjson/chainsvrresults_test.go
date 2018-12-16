@@ -8,7 +8,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/gcash/bchd/btcjson"
+	"github.com/bitcoinsv/bsvd/btcjson"
 )
 
 // TestChainSvrCustomResults ensures any results that have custom marshalling

@@ -1,5 +1,5 @@
-APPNAME = bchd
-CLINAME = bchctl
+APPNAME = bsvd
+CLINAME = bsvctl
 OUTDIR = pkg
 
 # Allow user to override cross compilation scope
@@ -8,26 +8,26 @@ DIRS ?= darwin_386 darwin_amd64 dragonfly_amd64 freebsd_386 freebsd_amd64 freebs
 
 all:
 	go build .
-	go build ./cmd/bchctl
+	go build ./cmd/bsvctl
 
 compile:
 	gox -osarch="$(OSARCH)" -output "$(OUTDIR)/$(APPNAME)-{{.OS}}_{{.Arch}}/$(APPNAME)"
-	gox -osarch="$(OSARCH)" -output "$(OUTDIR)/$(APPNAME)-{{.OS}}_{{.Arch}}/$(CLINAME)" ./cmd/bchctl
+	gox -osarch="$(OSARCH)" -output "$(OUTDIR)/$(APPNAME)-{{.OS}}_{{.Arch}}/$(CLINAME)" ./cmd/bsvctl
 	@for dir in $(DIRS) ; do \
 		(cp README.md $(OUTDIR)/$(APPNAME)-$$dir/README.md) ;\
 		(cp LICENSE $(OUTDIR)/$(APPNAME)-$$dir/LICENSE) ;\
-		(cp sample-bchd.conf $(OUTDIR)/$(APPNAME)-$$dir/sample-bchd.conf) ;\
+		(cp sample-bsvd.conf $(OUTDIR)/$(APPNAME)-$$dir/sample-bsvd.conf) ;\
 		(cd $(OUTDIR) && zip -q $(APPNAME)-$$dir.zip -r $(APPNAME)-$$dir) ;\
 		echo "make $(OUTDIR)/$(APPNAME)-$$dir.zip" ;\
 	done
 
 install:
 	go install .
-	go install ./cmd/bchctl
+	go install ./cmd/bsvctl
 
 uninstall:
 	go clean -i
-	go clean -i ./cmd/bchctl
+	go clean -i ./cmd/bsvctl
 
 docker:
 	docker build -t $(APPNAME) .

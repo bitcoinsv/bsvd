@@ -22,25 +22,25 @@ import (
 	"time"
 
 	"github.com/btcsuite/go-socks/socks"
-	"github.com/gcash/bchd/chaincfg"
-	"github.com/gcash/bchd/chaincfg/chainhash"
-	"github.com/gcash/bchd/connmgr"
-	"github.com/gcash/bchd/database"
-	_ "github.com/gcash/bchd/database/ffldb"
-	"github.com/gcash/bchd/mempool"
-	"github.com/gcash/bchd/peer"
-	"github.com/gcash/bchd/version"
-	"github.com/gcash/bchutil"
+	"github.com/bitcoinsv/bsvd/chaincfg"
+	"github.com/bitcoinsv/bsvd/chaincfg/chainhash"
+	"github.com/bitcoinsv/bsvd/connmgr"
+	"github.com/bitcoinsv/bsvd/database"
+	_ "github.com/bitcoinsv/bsvd/database/ffldb"
+	"github.com/bitcoinsv/bsvd/mempool"
+	"github.com/bitcoinsv/bsvd/peer"
+	"github.com/bitcoinsv/bsvd/version"
+	"github.com/bitcoinsv/bsvutil"
 
 	flags "github.com/jessevdk/go-flags"
 )
 
 const (
-	defaultConfigFilename          = "bchd.conf"
+	defaultConfigFilename          = "bsvd.conf"
 	defaultDataDirname             = "data"
 	defaultLogLevel                = "info"
 	defaultLogDirname              = "logs"
-	defaultLogFilename             = "bchd.log"
+	defaultLogFilename             = "bsvd.log"
 	defaultMaxPeers                = 125
 	defaultMaxPeersPerIP           = 5
 	defaultBanDuration             = time.Hour * 24
@@ -70,7 +70,7 @@ const (
 )
 
 var (
-	defaultHomeDir     = bchutil.AppDataDir("bchd", false)
+	defaultHomeDir     = bsvutil.AppDataDir("bsvd", false)
 	defaultConfigFile  = filepath.Join(defaultHomeDir, defaultConfigFilename)
 	defaultDataDir     = filepath.Join(defaultHomeDir, defaultDataDirname)
 	knownDbTypes       = database.SupportedDrivers()
@@ -101,7 +101,7 @@ func maxUint32(a, b uint32) uint32 {
 	return b
 }
 
-// config defines the configuration options for bchd.
+// config defines the configuration options for bsvd.
 //
 // See loadConfig for details on the configuration load process.
 type config struct {
@@ -154,7 +154,7 @@ type config struct {
 	DebugLevel              string        `short:"d" long:"debuglevel" description:"Logging level for all subsystems {trace, debug, info, warn, error, critical} -- You may also specify <subsystem>=<level>,<subsystem2>=<level>,... to set the log level for individual subsystems -- Use show to list available subsystems"`
 	Upnp                    bool          `long:"upnp" description:"Use UPnP to map our listening port outside of NAT"`
 	ExcessiveBlockSize      uint32        `long:"excessiveblocksize" description:"The maximum size block (in bytes) this node will accept. Cannot be less than 32000000."`
-	MinRelayTxFee           float64       `long:"minrelaytxfee" description:"The minimum transaction fee in BCH/kB to be considered a non-zero fee."`
+	MinRelayTxFee           float64       `long:"minrelaytxfee" description:"The minimum transaction fee in BSV/kB to be considered a non-zero fee."`
 	FreeTxRelayLimit        float64       `long:"limitfreerelay" description:"Limit relay of transactions with no transaction fee to the given amount in thousands of bytes per minute"`
 	NoRelayPriority         bool          `long:"norelaypriority" description:"Do not require free or low-fee transactions to have high priority for relaying"`
 	TrickleInterval         time.Duration `long:"trickleinterval" description:"Minimum time between attempts to send new inventory to a connected peer"`
@@ -185,8 +185,8 @@ type config struct {
 	oniondial               func(string, string, time.Duration) (net.Conn, error)
 	dial                    func(string, string, time.Duration) (net.Conn, error)
 	addCheckpoints          []chaincfg.Checkpoint
-	miningAddrs             []bchutil.Address
-	minRelayTxFee           bchutil.Amount
+	miningAddrs             []bsvutil.Address
+	minRelayTxFee           bsvutil.Amount
 	whitelists              []*net.IPNet
 }
 
@@ -415,7 +415,7 @@ func newConfigParser(cfg *config, so *serviceOptions, options flags.Options) *fl
 // 	3) Load configuration file overwriting defaults with any specified options
 // 	4) Parse CLI options and overwrite/add any specified options
 //
-// The above results in bchd functioning properly without any config settings
+// The above results in bsvd functioning properly without any config settings
 // while still allowing the user to override settings with config files and
 // command line options.  Command line options always take precedence.
 func loadConfig() (*config, []string, error) {
@@ -437,7 +437,7 @@ func loadConfig() (*config, []string, error) {
 		RPCKey:                  defaultRPCKeyFile,
 		RPCCert:                 defaultRPCCertFile,
 		ExcessiveBlockSize:      defaultExcessiveBlockSize,
-		MinRelayTxFee:           mempool.DefaultMinRelayTxFee.ToBCH(),
+		MinRelayTxFee:           mempool.DefaultMinRelayTxFee.ToBSV(),
 		FreeTxRelayLimit:        defaultFreeTxRelayLimit,
 		TrickleInterval:         defaultTrickleInterval,
 		BlockMinSize:            defaultBlockMinSize,
@@ -766,7 +766,7 @@ func loadConfig() (*config, []string, error) {
 	}
 
 	if cfg.DisableRPC {
-		bchdLog.Infof("RPC service is disabled")
+		bsvdLog.Infof("RPC service is disabled")
 	}
 
 	// Default RPC to listen on localhost only.
@@ -792,7 +792,7 @@ func loadConfig() (*config, []string, error) {
 	}
 
 	// Validate the the minrelaytxfee.
-	cfg.minRelayTxFee, err = bchutil.NewAmount(cfg.MinRelayTxFee)
+	cfg.minRelayTxFee, err = bsvutil.NewAmount(cfg.MinRelayTxFee)
 	if err != nil {
 		str := "%s: invalid minrelaytxfee: %v"
 		err := fmt.Errorf(str, funcName, err)
@@ -879,9 +879,9 @@ func loadConfig() (*config, []string, error) {
 	}
 
 	// Check mining addresses are valid and saved parsed versions.
-	cfg.miningAddrs = make([]bchutil.Address, 0, len(cfg.MiningAddrs))
+	cfg.miningAddrs = make([]bsvutil.Address, 0, len(cfg.MiningAddrs))
 	for _, strAddr := range cfg.MiningAddrs {
-		addr, err := bchutil.DecodeAddress(strAddr, activeNetParams.Params)
+		addr, err := bsvutil.DecodeAddress(strAddr, activeNetParams.Params)
 		if err != nil {
 			str := "%s: mining address '%s' failed to decode: %v"
 			err := fmt.Errorf(str, funcName, strAddr, err)
@@ -1094,13 +1094,13 @@ func loadConfig() (*config, []string, error) {
 	// done.  This prevents the warning on help messages and invalid
 	// options.  Note this should go directly before the return.
 	if configFileError != nil {
-		bchdLog.Warnf("%v", configFileError)
+		bsvdLog.Warnf("%v", configFileError)
 	}
 
 	return &cfg, remainingArgs, nil
 }
 
-// createDefaultConfig copies the sample-bchd.conf content to the given destination path,
+// createDefaultConfig copies the sample-bsvd.conf content to the given destination path,
 // and populates it with some randomly generated RPC username and password.
 func createDefaultConfigFile(destinationPath string) error {
 	// Create the destination directory if it does not exists
@@ -1123,7 +1123,7 @@ func createDefaultConfigFile(destinationPath string) error {
 	}
 	generatedRPCPass := base64.StdEncoding.EncodeToString(randomBytes)
 
-	sampleBytes, err := Asset("sample-bchd.conf")
+	sampleBytes, err := Asset("sample-bsvd.conf")
 	if err != nil {
 		return err
 	}
@@ -1160,12 +1160,12 @@ func createDefaultConfigFile(destinationPath string) error {
 	return nil
 }
 
-// bchdDial connects to the address on the named network using the appropriate
+// bsvdDial connects to the address on the named network using the appropriate
 // dial function depending on the address and configuration options.  For
 // example, .onion addresses will be dialed using the onion specific proxy if
 // one was specified, but will otherwise use the normal dial function (which
 // could itself use a proxy or not).
-func bchdDial(addr net.Addr) (net.Conn, error) {
+func bsvdDial(addr net.Addr) (net.Conn, error) {
 	if strings.Contains(addr.String(), ".onion:") {
 		return cfg.oniondial(addr.Network(), addr.String(),
 			defaultConnectTimeout)
@@ -1173,14 +1173,14 @@ func bchdDial(addr net.Addr) (net.Conn, error) {
 	return cfg.dial(addr.Network(), addr.String(), defaultConnectTimeout)
 }
 
-// bchdLookup resolves the IP of the given host using the correct DNS lookup
+// bsvdLookup resolves the IP of the given host using the correct DNS lookup
 // function depending on the configuration options.  For example, addresses will
 // be resolved using tor when the --proxy flag was specified unless --noonion
 // was also specified in which case the normal system DNS resolver will be used.
 //
 // Any attempt to resolve a tor address (.onion) will return an error since they
 // are not intended to be resolved outside of the tor proxy.
-func bchdLookup(host string) ([]net.IP, error) {
+func bsvdLookup(host string) ([]net.IP, error) {
 	if strings.HasSuffix(host, ".onion") {
 		return nil, fmt.Errorf("attempt to resolve tor address %s", host)
 	}

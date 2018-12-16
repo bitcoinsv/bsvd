@@ -17,25 +17,25 @@ import (
 // starting with SendHeadersVersion.
 type MsgSendHeaders struct{}
 
-// BchDecode decodes r using the bitcoin protocol encoding into the receiver.
+// Bsvdecode decodes r using the bitcoin protocol encoding into the receiver.
 // This is part of the Message interface implementation.
-func (msg *MsgSendHeaders) BchDecode(r io.Reader, pver uint32, enc MessageEncoding) error {
+func (msg *MsgSendHeaders) Bsvdecode(r io.Reader, pver uint32, enc MessageEncoding) error {
 	if pver < SendHeadersVersion {
 		str := fmt.Sprintf("sendheaders message invalid for protocol "+
 			"version %d", pver)
-		return messageError("MsgSendHeaders.BchDecode", str)
+		return messageError("MsgSendHeaders.Bsvdecode", str)
 	}
 
 	return nil
 }
 
-// BchEncode encodes the receiver to w using the bitcoin protocol encoding.
+// BsvEncode encodes the receiver to w using the bitcoin protocol encoding.
 // This is part of the Message interface implementation.
-func (msg *MsgSendHeaders) BchEncode(w io.Writer, pver uint32, enc MessageEncoding) error {
+func (msg *MsgSendHeaders) BsvEncode(w io.Writer, pver uint32, enc MessageEncoding) error {
 	if pver < SendHeadersVersion {
 		str := fmt.Sprintf("sendheaders message invalid for protocol "+
 			"version %d", pver)
-		return messageError("MsgSendHeaders.BchEncode", str)
+		return messageError("MsgSendHeaders.BsvEncode", str)
 	}
 
 	return nil

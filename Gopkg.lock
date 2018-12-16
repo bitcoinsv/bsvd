@@ -79,7 +79,7 @@
 [[projects]]
   branch = "master"
   digest = "1:b1053b781e9090dab5d3e916eb04c8d85b63a7f6911007c2cd1dd82fb22f7f6a"
-  name = "github.com/gcash/bchlog"
+  name = "github.com/bitcoinsv/bsvlog"
   packages = ["."]
   pruneopts = "UT"
   revision = "b4f036f92fa66c88eec458f4531ff14ff87704d6"
@@ -87,7 +87,7 @@
 [[projects]]
   branch = "master"
   digest = "1:8eaa30c3dfebd0911211eb0bfa02942cb54e4c33d40b789b15f8f1dfecbb5051"
-  name = "github.com/gcash/bchutil"
+  name = "github.com/bitcoinsv/bsvutil"
   packages = [
     ".",
     "base58",
@@ -149,13 +149,13 @@
     "github.com/btcsuite/winsvc/mgr",
     "github.com/btcsuite/winsvc/svc",
     "github.com/davecgh/go-spew/spew",
-    "github.com/gcash/bchlog",
-    "github.com/gcash/bchutil",
-    "github.com/gcash/bchutil/bloom",
-    "github.com/gcash/bchutil/gcs",
-    "github.com/gcash/bchutil/gcs/builder",
-    "github.com/gcash/bchutil/hdkeychain",
-    "github.com/gcash/bchutil/merkleblock",
+    "github.com/bitcoinsv/bsvlog",
+    "github.com/bitcoinsv/bsvutil",
+    "github.com/bitcoinsv/bsvutil/bloom",
+    "github.com/bitcoinsv/bsvutil/gcs",
+    "github.com/bitcoinsv/bsvutil/gcs/builder",
+    "github.com/bitcoinsv/bsvutil/hdkeychain",
+    "github.com/bitcoinsv/bsvutil/merkleblock",
     "github.com/jessevdk/go-flags",
     "github.com/jrick/logrotate/rotator",
     "golang.org/x/crypto/ripemd160",

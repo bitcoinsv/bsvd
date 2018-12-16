@@ -1,11 +1,11 @@
 integration
 ===========
 
-[![Build Status](https://travis-ci.org/gcash/bchd.png?branch=master)](https://travis-ci.org/gcash/bchd)
+[![Build Status](https://travis-ci.org/bitcoinsv/bsvd.png?branch=master)](https://travis-ci.org/bitcoinsv/bsvd)
 [![ISC License](http://img.shields.io/badge/license-ISC-blue.svg)](http://copyfree.org)
 
 This contains integration tests which make use of the
-[rpctest](https://github.com/gcash/bchd/tree/master/integration/rpctest)
+[rpctest](https://github.com/bitcoinsv/bsvd/tree/master/integration/rpctest)
 package to programmatically drive nodes via RPC.
 
 ## License

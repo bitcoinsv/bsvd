@@ -1,9 +1,9 @@
 wire
 ====
 
-[![Build Status](https://travis-ci.org/gcash/bchd.png?branch=master)](https://travis-ci.org/gcash/bchd)
+[![Build Status](https://travis-ci.org/bitcoinsv/bsvd.png?branch=master)](https://travis-ci.org/bitcoinsv/bsvd)
 [![ISC License](http://img.shields.io/badge/license-ISC-blue.svg)](http://copyfree.org)
-[![GoDoc](https://img.shields.io/badge/godoc-reference-blue.svg)](http://godoc.org/github.com/gcash/bchd/wire)
+[![GoDoc](https://img.shields.io/badge/godoc-reference-blue.svg)](http://godoc.org/github.com/bitcoinsv/bsvd/wire)
 =======
 
 Package wire implements the bitcoin wire protocol.  A comprehensive suite of
@@ -19,7 +19,7 @@ protocol level.
 ## Installation and Updating
 
 ```bash
-$ go get -u github.com/gcash/bchd/wire
+$ go get -u github.com/bitcoinsv/bsvd/wire
 ```
 
 ## Bitcoin Message Overview
@@ -48,13 +48,13 @@ to a remote node running a bitcoin peer.  Example syntax is:
 	// Use the most recent protocol version supported by the package and the
 	// main bitcoin network.
 	pver := wire.ProtocolVersion
-	bchnet := wire.MainNet
+	bsvnet := wire.MainNet
 
 	// Reads and validates the next bitcoin message from conn using the
-	// protocol version pver and the bitcoin network bchnet.  The returns
+	// protocol version pver and the bitcoin network bsvnet.  The returns
 	// are a wire.Message, a []byte which contains the unmarshalled
 	// raw payload, and a possible error.
-	msg, rawPayload, err := wire.ReadMessage(conn, pver, bchnet)
+	msg, rawPayload, err := wire.ReadMessage(conn, pver, bsvnet)
 	if err != nil {
 		// Log and handle the error
 	}
@@ -73,15 +73,15 @@ from a remote peer is:
 	// Use the most recent protocol version supported by the package and the
 	// main bitcoin network.
 	pver := wire.ProtocolVersion
-	bchnet := wire.MainNet
+	bsvnet := wire.MainNet
 
 	// Create a new getaddr bitcoin message.
 	msg := wire.NewMsgGetAddr()
 
 	// Writes a bitcoin message msg to conn using the protocol version
-	// pver, and the bitcoin network bchnet.  The return is a possible
+	// pver, and the bitcoin network bsvnet.  The return is a possible
 	// error.
-	err := wire.WriteMessage(conn, msg, pver, bchnet)
+	err := wire.WriteMessage(conn, msg, pver, bsvnet)
 	if err != nil {
 		// Log and handle the error
 	}

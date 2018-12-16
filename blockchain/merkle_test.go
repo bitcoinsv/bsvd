@@ -7,12 +7,12 @@ package blockchain
 import (
 	"testing"
 
-	"github.com/gcash/bchutil"
+	"github.com/bitcoinsv/bsvutil"
 )
 
 // TestMerkle tests the BuildMerkleTreeStore API.
 func TestMerkle(t *testing.T) {
-	block := bchutil.NewBlock(&Block100000)
+	block := bsvutil.NewBlock(&Block100000)
 	merkles := BuildMerkleTreeStore(block.Transactions())
 	calculatedMerkleRoot := merkles[len(merkles)-1]
 	wantMerkle := &Block100000.Header.MerkleRoot

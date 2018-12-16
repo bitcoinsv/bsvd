@@ -8,7 +8,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/gcash/bchd/database"
+	"github.com/bitcoinsv/bsvd/database"
 )
 
 // TestErrorCodeStringer tests the stringized output for the ErrorCode type.

@@ -43,14 +43,14 @@ func TestFilterClearCrossProtocol(t *testing.T) {
 
 	// Encode with latest protocol version.
 	var buf bytes.Buffer
-	err := msg.BchEncode(&buf, ProtocolVersion, LatestEncoding)
+	err := msg.BsvEncode(&buf, ProtocolVersion, LatestEncoding)
 	if err != nil {
 		t.Errorf("encode of MsgFilterClear failed %v err <%v>", msg, err)
 	}
 
 	// Decode with old protocol version.
 	var readmsg MsgFilterClear
-	err = readmsg.BchDecode(&buf, BIP0031Version, LatestEncoding)
+	err = readmsg.Bsvdecode(&buf, BIP0031Version, LatestEncoding)
 	if err == nil {
 		t.Errorf("decode of MsgFilterClear succeeded when it "+
 			"shouldn't have %v", msg)
@@ -102,13 +102,13 @@ func TestFilterClearWire(t *testing.T) {
 	for i, test := range tests {
 		// Encode the message to wire format.
 		var buf bytes.Buffer
-		err := test.in.BchEncode(&buf, test.pver, test.enc)
+		err := test.in.BsvEncode(&buf, test.pver, test.enc)
 		if err != nil {
-			t.Errorf("BchEncode #%d error %v", i, err)
+			t.Errorf("BsvEncode #%d error %v", i, err)
 			continue
 		}
 		if !bytes.Equal(buf.Bytes(), test.buf) {
-			t.Errorf("BchEncode #%d\n got: %s want: %s", i,
+			t.Errorf("BsvEncode #%d\n got: %s want: %s", i,
 				spew.Sdump(buf.Bytes()), spew.Sdump(test.buf))
 			continue
 		}
@@ -116,13 +116,13 @@ func TestFilterClearWire(t *testing.T) {
 		// Decode the message from wire format.
 		var msg MsgFilterClear
 		rbuf := bytes.NewReader(test.buf)
-		err = msg.BchDecode(rbuf, test.pver, test.enc)
+		err = msg.Bsvdecode(rbuf, test.pver, test.enc)
 		if err != nil {
-			t.Errorf("BchDecode #%d error %v", i, err)
+			t.Errorf("Bsvdecode #%d error %v", i, err)
 			continue
 		}
 		if !reflect.DeepEqual(&msg, test.out) {
-			t.Errorf("BchDecode #%d\n got: %s want: %s", i,
+			t.Errorf("Bsvdecode #%d\n got: %s want: %s", i,
 				spew.Sdump(msg), spew.Sdump(test.out))
 			continue
 		}
@@ -158,9 +158,9 @@ func TestFilterClearWireErrors(t *testing.T) {
 	for i, test := range tests {
 		// Encode to wire format.
 		w := newFixedWriter(test.max)
-		err := test.in.BchEncode(w, test.pver, test.enc)
+		err := test.in.BsvEncode(w, test.pver, test.enc)
 		if reflect.TypeOf(err) != reflect.TypeOf(test.writeErr) {
-			t.Errorf("BchEncode #%d wrong error got: %v, want: %v",
+			t.Errorf("BsvEncode #%d wrong error got: %v, want: %v",
 				i, err, test.writeErr)
 			continue
 		}
@@ -169,7 +169,7 @@ func TestFilterClearWireErrors(t *testing.T) {
 		// equality.
 		if _, ok := err.(*MessageError); !ok {
 			if err != test.writeErr {
-				t.Errorf("BchEncode #%d wrong error got: %v, "+
+				t.Errorf("BsvEncode #%d wrong error got: %v, "+
 					"want: %v", i, err, test.writeErr)
 				continue
 			}
@@ -178,9 +178,9 @@ func TestFilterClearWireErrors(t *testing.T) {
 		// Decode from wire format.
 		var msg MsgFilterClear
 		r := newFixedReader(test.max, test.buf)
-		err = msg.BchDecode(r, test.pver, test.enc)
+		err = msg.Bsvdecode(r, test.pver, test.enc)
 		if reflect.TypeOf(err) != reflect.TypeOf(test.readErr) {
-			t.Errorf("BchDecode #%d wrong error got: %v, want: %v",
+			t.Errorf("Bsvdecode #%d wrong error got: %v, want: %v",
 				i, err, test.readErr)
 			continue
 		}
@@ -189,7 +189,7 @@ func TestFilterClearWireErrors(t *testing.T) {
 		// equality.
 		if _, ok := err.(*MessageError); !ok {
 			if err != test.readErr {
-				t.Errorf("BchDecode #%d wrong error got: %v, "+
+				t.Errorf("Bsvdecode #%d wrong error got: %v, "+
 					"want: %v", i, err, test.readErr)
 				continue
 			}

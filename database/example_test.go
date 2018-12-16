@@ -10,11 +10,11 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/gcash/bchd/chaincfg"
-	"github.com/gcash/bchd/database"
-	_ "github.com/gcash/bchd/database/ffldb"
-	"github.com/gcash/bchd/wire"
-	"github.com/gcash/bchutil"
+	"github.com/bitcoinsv/bsvd/chaincfg"
+	"github.com/bitcoinsv/bsvd/database"
+	_ "github.com/bitcoinsv/bsvd/database/ffldb"
+	"github.com/bitcoinsv/bsvd/wire"
+	"github.com/bitcoinsv/bsvutil"
 )
 
 // This example demonstrates creating a new database.
@@ -22,8 +22,8 @@ func ExampleCreate() {
 	// This example assumes the ffldb driver is imported.
 	//
 	// import (
-	// 	"github.com/gcash/bchd/database"
-	// 	_ "github.com/gcash/bchd/database/ffldb"
+	// 	"github.com/bitcoinsv/bsvd/database"
+	// 	_ "github.com/bitcoinsv/bsvd/database/ffldb"
 	// )
 
 	// Create a database and schedule it to be closed and removed on exit.
@@ -48,8 +48,8 @@ func Example_basicUsage() {
 	// This example assumes the ffldb driver is imported.
 	//
 	// import (
-	// 	"github.com/gcash/bchd/database"
-	// 	_ "github.com/gcash/bchd/database/ffldb"
+	// 	"github.com/bitcoinsv/bsvd/database"
+	// 	_ "github.com/bitcoinsv/bsvd/database/ffldb"
 	// )
 
 	// Create a database and schedule it to be closed and removed on exit.
@@ -114,8 +114,8 @@ func Example_blockStorageAndRetrieval() {
 	// This example assumes the ffldb driver is imported.
 	//
 	// import (
-	// 	"github.com/gcash/bchd/database"
-	// 	_ "github.com/gcash/bchd/database/ffldb"
+	// 	"github.com/bitcoinsv/bsvd/database"
+	// 	_ "github.com/bitcoinsv/bsvd/database/ffldb"
 	// )
 
 	// Create a database and schedule it to be closed and removed on exit.
@@ -136,7 +136,7 @@ func Example_blockStorageAndRetrieval() {
 	// and example.
 	err = db.Update(func(tx database.Tx) error {
 		genesisBlock := chaincfg.MainNetParams.GenesisBlock
-		return tx.StoreBlock(bchutil.NewBlock(genesisBlock))
+		return tx.StoreBlock(bsvutil.NewBlock(genesisBlock))
 	})
 	if err != nil {
 		fmt.Println(err)

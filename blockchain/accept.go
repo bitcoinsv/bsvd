@@ -7,8 +7,8 @@ package blockchain
 import (
 	"fmt"
 
-	"github.com/gcash/bchd/database"
-	"github.com/gcash/bchutil"
+	"github.com/bitcoinsv/bsvd/database"
+	"github.com/bitcoinsv/bsvutil"
 )
 
 // maybeAcceptBlock potentially accepts a block into the block chain and, if
@@ -21,7 +21,7 @@ import (
 // their documentation for how the flags modify their behavior.
 //
 // This function MUST be called with the chain state lock held (for writes).
-func (b *BlockChain) maybeAcceptBlock(block *bchutil.Block, flags BehaviorFlags) (bool, error) {
+func (b *BlockChain) maybeAcceptBlock(block *bsvutil.Block, flags BehaviorFlags) (bool, error) {
 	// The height of this block is one more than the referenced previous
 	// block.
 	prevHash := &block.MsgBlock().Header.PrevBlock

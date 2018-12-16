@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	. "github.com/gcash/bchd/chaincfg"
+	. "github.com/bitcoinsv/bsvd/chaincfg"
 )
 
 // Define some of the required parameters for a user-registered
@@ -20,7 +20,7 @@ var mockNetParams = Params{
 	LegacyScriptHashAddrID: 0xf9,
 	HDPrivateKeyID:         [4]byte{0x01, 0x02, 0x03, 0x04},
 	HDPublicKeyID:          [4]byte{0x05, 0x06, 0x07, 0x08},
-	CashAddressPrefix:      "bchmock",
+	CashAddressPrefix:      "bsvmock",
 }
 
 func TestRegister(t *testing.T) {

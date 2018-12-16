@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/gcash/bchd/chaincfg/chainhash"
+	"github.com/bitcoinsv/bsvd/chaincfg/chainhash"
 )
 
 // MsgGetHeaders implements the Message interface and represents a bitcoin
@@ -45,9 +45,9 @@ func (msg *MsgGetHeaders) AddBlockLocatorHash(hash *chainhash.Hash) error {
 	return nil
 }
 
-// BchDecode decodes r using the bitcoin protocol encoding into the receiver.
+// Bsvdecode decodes r using the bitcoin protocol encoding into the receiver.
 // This is part of the Message interface implementation.
-func (msg *MsgGetHeaders) BchDecode(r io.Reader, pver uint32, enc MessageEncoding) error {
+func (msg *MsgGetHeaders) Bsvdecode(r io.Reader, pver uint32, enc MessageEncoding) error {
 	err := readElement(r, &msg.ProtocolVersion)
 	if err != nil {
 		return err
@@ -61,7 +61,7 @@ func (msg *MsgGetHeaders) BchDecode(r io.Reader, pver uint32, enc MessageEncodin
 	if count > MaxBlockLocatorsPerMsg {
 		str := fmt.Sprintf("too many block locator hashes for message "+
 			"[count %v, max %v]", count, MaxBlockLocatorsPerMsg)
-		return messageError("MsgGetHeaders.BchDecode", str)
+		return messageError("MsgGetHeaders.Bsvdecode", str)
 	}
 
 	// Create a contiguous slice of hashes to deserialize into in order to
@@ -80,15 +80,15 @@ func (msg *MsgGetHeaders) BchDecode(r io.Reader, pver uint32, enc MessageEncodin
 	return readElement(r, &msg.HashStop)
 }
 
-// BchEncode encodes the receiver to w using the bitcoin protocol encoding.
+// BsvEncode encodes the receiver to w using the bitcoin protocol encoding.
 // This is part of the Message interface implementation.
-func (msg *MsgGetHeaders) BchEncode(w io.Writer, pver uint32, enc MessageEncoding) error {
+func (msg *MsgGetHeaders) BsvEncode(w io.Writer, pver uint32, enc MessageEncoding) error {
 	// Limit to max block locator hashes per message.
 	count := len(msg.BlockLocatorHashes)
 	if count > MaxBlockLocatorsPerMsg {
 		str := fmt.Sprintf("too many block locator hashes for message "+
 			"[count %v, max %v]", count, MaxBlockLocatorsPerMsg)
-		return messageError("MsgGetHeaders.BchEncode", str)
+		return messageError("MsgGetHeaders.BsvEncode", str)
 	}
 
 	err := writeElement(w, msg.ProtocolVersion)

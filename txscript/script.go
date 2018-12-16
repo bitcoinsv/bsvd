@@ -10,8 +10,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/gcash/bchd/chaincfg/chainhash"
-	"github.com/gcash/bchd/wire"
+	"github.com/bitcoinsv/bsvd/chaincfg/chainhash"
+	"github.com/bitcoinsv/bsvd/wire"
 )
 
 // Bip16Activation is the timestamp where BIP0016 is valid to use in the
@@ -337,7 +337,7 @@ func calcHashOutputs(tx *wire.MsgTx) chainhash.Hash {
 }
 
 // CalcSignatureHash returns a signature hash which can then be signed by the
-// input. Since Bitcoin Cash uses a different signature hashing algorithm
+// input. Since Bitcoin (BSV) uses a different signature hashing algorithm
 // before and after the Uahf fork, the 'useBip143SigHashAlgo' bool is used
 // to specify which algorithm to use.
 func CalcSignatureHash(script []byte, sigHashes *TxSigHashes, hType SigHashType,

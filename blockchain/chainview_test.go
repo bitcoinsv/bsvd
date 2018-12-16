@@ -10,7 +10,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/gcash/bchd/wire"
+	"github.com/bitcoinsv/bsvd/wire"
 )
 
 // testNoncePrng provides a deterministic prng for the nonce in generated fake

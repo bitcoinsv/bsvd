@@ -7,7 +7,7 @@ package btcjson_test
 import (
 	"testing"
 
-	"github.com/gcash/bchd/btcjson"
+	"github.com/bitcoinsv/bsvd/btcjson"
 )
 
 // TestErrorCodeStringer tests the stringized output for the ErrorCode type.

@@ -9,10 +9,10 @@ import (
 	"math/rand"
 	"testing"
 
-	"github.com/gcash/bchd/chaincfg/chainhash"
-	"github.com/gcash/bchd/mining"
-	"github.com/gcash/bchd/wire"
-	"github.com/gcash/bchutil"
+	"github.com/bitcoinsv/bsvd/chaincfg/chainhash"
+	"github.com/bitcoinsv/bsvd/mining"
+	"github.com/bitcoinsv/bsvd/wire"
+	"github.com/bitcoinsv/bsvutil"
 )
 
 // newTestFeeEstimator creates a feeEstimator with some different parameters
@@ -46,11 +46,11 @@ type estimateFeeTester struct {
 	last    *lastBlock
 }
 
-func (eft *estimateFeeTester) testTx(fee bchutil.Amount) *TxDesc {
+func (eft *estimateFeeTester) testTx(fee bsvutil.Amount) *TxDesc {
 	eft.version++
 	return &TxDesc{
 		TxDesc: mining.TxDesc{
-			Tx: bchutil.NewTx(&wire.MsgTx{
+			Tx: bsvutil.NewTx(&wire.MsgTx{
 				Version: eft.version,
 			}),
 			Height: eft.height,
@@ -60,17 +60,17 @@ func (eft *estimateFeeTester) testTx(fee bchutil.Amount) *TxDesc {
 	}
 }
 
-func expectedFeePerKilobyte(t *TxDesc) BchPerKilobyte {
+func expectedFeePerKilobyte(t *TxDesc) BsvPerKilobyte {
 	size := float64(t.TxDesc.Tx.MsgTx().SerializeSize())
 	fee := float64(t.TxDesc.Fee)
 
-	return SatoshiPerByte(fee / size).ToBchPerKb()
+	return SatoshiPerByte(fee / size).ToBsvPerKb()
 }
 
 func (eft *estimateFeeTester) newBlock(txs []*wire.MsgTx) {
 	eft.height++
 
-	block := bchutil.NewBlock(&wire.MsgBlock{
+	block := bsvutil.NewBlock(&wire.MsgBlock{
 		Transactions: txs,
 	})
 	block.SetHeight(eft.height)
@@ -101,7 +101,7 @@ func TestEstimateFee(t *testing.T) {
 	eft := estimateFeeTester{ef: ef, t: t}
 
 	// Try with no txs and get zero for all queries.
-	expected := BchPerKilobyte(0.0)
+	expected := BsvPerKilobyte(0.0)
 	for i := uint32(1); i <= estimateFeeDepth; i++ {
 		estimated, _ := ef.EstimateFee(i)
 
@@ -115,7 +115,7 @@ func TestEstimateFee(t *testing.T) {
 	ef.ObserveTransaction(tx)
 
 	// Expected should still be zero because this is still in the mempool.
-	expected = BchPerKilobyte(0.0)
+	expected = BsvPerKilobyte(0.0)
 	for i := uint32(1); i <= estimateFeeDepth; i++ {
 		estimated, _ := ef.EstimateFee(i)
 
@@ -127,7 +127,7 @@ func TestEstimateFee(t *testing.T) {
 	// Change minRegisteredBlocks to make sure that works. Error return
 	// value expected.
 	ef.minRegisteredBlocks = 1
-	expected = BchPerKilobyte(-1.0)
+	expected = BsvPerKilobyte(-1.0)
 	for i := uint32(1); i <= estimateFeeDepth; i++ {
 		estimated, _ := ef.EstimateFee(i)
 
@@ -150,7 +150,7 @@ func TestEstimateFee(t *testing.T) {
 	// Roll back the last block; this was an orphan block.
 	ef.minRegisteredBlocks = 0
 	eft.rollback()
-	expected = BchPerKilobyte(0.0)
+	expected = BsvPerKilobyte(0.0)
 	for i := uint32(1); i <= estimateFeeDepth; i++ {
 		estimated, _ := ef.EstimateFee(i)
 
@@ -256,10 +256,10 @@ func TestEstimateFee(t *testing.T) {
 	}
 }
 
-func (eft *estimateFeeTester) estimates() [estimateFeeDepth]BchPerKilobyte {
+func (eft *estimateFeeTester) estimates() [estimateFeeDepth]BsvPerKilobyte {
 
 	// Generate estimates
-	var estimates [estimateFeeDepth]BchPerKilobyte
+	var estimates [estimateFeeDepth]BsvPerKilobyte
 	for i := 0; i < estimateFeeDepth; i++ {
 		estimates[i], _ = eft.ef.EstimateFee(uint32(i + 1))
 	}
@@ -277,13 +277,13 @@ func (eft *estimateFeeTester) estimates() [estimateFeeDepth]BchPerKilobyte {
 }
 
 func (eft *estimateFeeTester) round(txHistory [][]*TxDesc,
-	estimateHistory [][estimateFeeDepth]BchPerKilobyte,
-	txPerRound, txPerBlock uint32) ([][]*TxDesc, [][estimateFeeDepth]BchPerKilobyte) {
+	estimateHistory [][estimateFeeDepth]BsvPerKilobyte,
+	txPerRound, txPerBlock uint32) ([][]*TxDesc, [][estimateFeeDepth]BsvPerKilobyte) {
 
 	// generate new txs.
 	var newTxs []*TxDesc
 	for i := uint32(0); i < txPerRound; i++ {
-		newTx := eft.testTx(bchutil.Amount(rand.Intn(1000000)))
+		newTx := eft.testTx(bsvutil.Amount(rand.Intn(1000000)))
 		eft.ef.ObserveTransaction(newTx)
 		newTxs = append(newTxs, newTx)
 	}
@@ -332,7 +332,7 @@ func TestEstimateFeeRollback(t *testing.T) {
 
 	eft := estimateFeeTester{ef: newTestFeeEstimator(binSize, maxReplacements, uint32(stepsBack)), t: t}
 	var txHistory [][]*TxDesc
-	estimateHistory := [][estimateFeeDepth]BchPerKilobyte{eft.estimates()}
+	estimateHistory := [][estimateFeeDepth]BsvPerKilobyte{eft.estimates()}
 
 	for round := 0; round < rounds; round++ {
 		// Go forward a few rounds.
@@ -367,7 +367,7 @@ func TestEstimateFeeRollback(t *testing.T) {
 }
 
 func (eft *estimateFeeTester) checkSaveAndRestore(
-	previousEstimates [estimateFeeDepth]BchPerKilobyte) {
+	previousEstimates [estimateFeeDepth]BsvPerKilobyte) {
 
 	// Get the save state.
 	save := eft.ef.Save()
@@ -406,7 +406,7 @@ func TestDatabase(t *testing.T) {
 
 	eft := estimateFeeTester{ef: newTestFeeEstimator(binSize, maxReplacements, uint32(rounds)+1), t: t}
 	var txHistory [][]*TxDesc
-	estimateHistory := [][estimateFeeDepth]BchPerKilobyte{eft.estimates()}
+	estimateHistory := [][estimateFeeDepth]BsvPerKilobyte{eft.estimates()}
 
 	for round := 0; round < rounds; round++ {
 		eft.checkSaveAndRestore(estimateHistory[len(estimateHistory)-1])

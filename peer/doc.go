@@ -137,7 +137,7 @@ written, the remote address, user agent, and negotiated protocol version.
 Logging
 
 This package provides extensive logging capabilities through the UseLogger
-function which allows a bchlog.Logger to be specified.  For example, logging at
+function which allows a bsvlog.Logger to be specified.  For example, logging at
 the debug level provides summaries of every message sent and received, and
 logging at the trace level provides full dumps of parsed messages as well as the
 raw message bytes using a format similar to hexdump -C.
@@ -145,6 +145,6 @@ raw message bytes using a format similar to hexdump -C.
 Bitcoin Improvement Proposals
 
 This package supports all BIPS supported by the wire package.
-(https://godoc.org/github.com/gcash/bchd/wire#hdr-Bitcoin_Improvement_Proposals)
+(https://godoc.org/github.com/bitcoinsv/bsvd/wire#hdr-Bitcoin_Improvement_Proposals)
 */
 package peer

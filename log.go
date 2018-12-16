@@ -10,19 +10,19 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/gcash/bchd/addrmgr"
-	"github.com/gcash/bchd/blockchain"
-	"github.com/gcash/bchd/blockchain/indexers"
-	"github.com/gcash/bchd/connmgr"
-	"github.com/gcash/bchd/database"
-	"github.com/gcash/bchd/mempool"
-	"github.com/gcash/bchd/mining"
-	"github.com/gcash/bchd/mining/cpuminer"
-	"github.com/gcash/bchd/netsync"
-	"github.com/gcash/bchd/peer"
-	"github.com/gcash/bchd/txscript"
+	"github.com/bitcoinsv/bsvd/addrmgr"
+	"github.com/bitcoinsv/bsvd/blockchain"
+	"github.com/bitcoinsv/bsvd/blockchain/indexers"
+	"github.com/bitcoinsv/bsvd/connmgr"
+	"github.com/bitcoinsv/bsvd/database"
+	"github.com/bitcoinsv/bsvd/mempool"
+	"github.com/bitcoinsv/bsvd/mining"
+	"github.com/bitcoinsv/bsvd/mining/cpuminer"
+	"github.com/bitcoinsv/bsvd/netsync"
+	"github.com/bitcoinsv/bsvd/peer"
+	"github.com/bitcoinsv/bsvd/txscript"
 
-	"github.com/gcash/bchlog"
+	"github.com/bitcoinsv/bsvlog"
 	"github.com/jrick/logrotate/rotator"
 )
 
@@ -48,7 +48,7 @@ var (
 	// backendLog is the logging backend used to create all subsystem loggers.
 	// The backend must not be used before the log rotator has been initialized,
 	// or data races and/or nil pointer dereferences will occur.
-	backendLog = bchlog.NewBackend(logWriter{})
+	backendLog = bsvlog.NewBackend(logWriter{})
 
 	// logRotator is one of the logging outputs.  It should be closed on
 	// application shutdown.
@@ -58,7 +58,7 @@ var (
 	amgrLog = backendLog.Logger("AMGR")
 	cmgrLog = backendLog.Logger("CMGR")
 	bcdbLog = backendLog.Logger("BCDB")
-	bchdLog = backendLog.Logger("BCHD")
+	bsvdLog = backendLog.Logger("BSVD")
 	chanLog = backendLog.Logger("CHAN")
 	discLog = backendLog.Logger("DISC")
 	indxLog = backendLog.Logger("INDX")
@@ -87,12 +87,12 @@ func init() {
 }
 
 // subsystemLoggers maps each subsystem identifier to its associated logger.
-var subsystemLoggers = map[string]bchlog.Logger{
+var subsystemLoggers = map[string]bsvlog.Logger{
 	"ADXR": adxrLog,
 	"AMGR": amgrLog,
 	"CMGR": cmgrLog,
 	"BCDB": bcdbLog,
-	"BCHD": bchdLog,
+	"BSVD": bsvdLog,
 	"CHAN": chanLog,
 	"DISC": discLog,
 	"INDX": indxLog,
@@ -135,7 +135,7 @@ func setLogLevel(subsystemID string, logLevel string) {
 	}
 
 	// Defaults to info if the log level is invalid.
-	level, _ := bchlog.LevelFromString(logLevel)
+	level, _ := bsvlog.LevelFromString(logLevel)
 	logger.SetLevel(level)
 }
 

@@ -11,8 +11,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gcash/bchd/chaincfg/chainhash"
-	"github.com/gcash/bchd/wire"
+	"github.com/bitcoinsv/bsvd/chaincfg/chainhash"
+	"github.com/bitcoinsv/bsvd/wire"
 )
 
 // These variables are the chain proof-of-work limit parameters for each default
@@ -135,7 +135,7 @@ type Params struct {
 	BIP0065Height int32
 	BIP0066Height int32
 
-	// The following are the heights at which the Bitcoin Cash specific forks
+	// The following are the heights at which the Bitcoin specific forks
 	// became active.
 	UahfForkHeight              int32 // August 1, 2017 hard fork
 	DaaForkHeight               int32 // November 13, 2017 hard fork
@@ -232,7 +232,7 @@ var MainNetParams = Params{
 	Net:         wire.MainNet,
 	DefaultPort: "8333",
 	DNSSeeds: []DNSSeed{
-		{"seed.bchd.cash", true},
+		{"seed.bsvd.cash", true},
 		{"seed.bitcoinabc.org", true},
 		{"seed-abc.bitcoinforks.org", true},
 		{"btccash-seeder.bitcoinunlimited.info", true},
@@ -388,7 +388,7 @@ var RegressionNetParams = Params{
 	RelayNonStdTxs: true,
 
 	// The prefix for the cashaddress
-	CashAddressPrefix: "bchreg", // always bchreg for reg testnet
+	CashAddressPrefix: "bsvreg", // always bsvreg for reg testnet
 
 	// Address encoding magics
 	LegacyPubKeyHashAddrID: 0x6f, // starts with m or n
@@ -480,7 +480,7 @@ var TestNet3Params = Params{
 	RelayNonStdTxs: true,
 
 	// The prefix for the cashaddress
-	CashAddressPrefix: "bchtest", // always bchtest for testnet
+	CashAddressPrefix: "bsvtest", // always bsvtest for testnet
 
 	// Address encoding magics
 	LegacyPubKeyHashAddrID: 0x6f, // starts with m or n
@@ -556,7 +556,7 @@ var SimNetParams = Params{
 	RelayNonStdTxs: true,
 
 	// The prefix for the cashaddress
-	CashAddressPrefix: "bchsim", // always bchsim for simnet
+	CashAddressPrefix: "bsvsim", // always bsvsim for simnet
 
 	// Address encoding magics
 	LegacyPubKeyHashAddrID: 0x3f, // starts with S

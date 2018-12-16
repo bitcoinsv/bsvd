@@ -8,8 +8,8 @@ import (
 	"net"
 	"testing"
 
-	"github.com/gcash/bchd/addrmgr"
-	"github.com/gcash/bchd/wire"
+	"github.com/bitcoinsv/bsvd/addrmgr"
+	"github.com/bitcoinsv/bsvd/wire"
 )
 
 // TestIPTypes ensures the various functions which determine the type of an IP

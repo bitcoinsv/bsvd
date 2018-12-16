@@ -9,7 +9,7 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/gcash/bchd/txscript"
+	"github.com/bitcoinsv/bsvd/txscript"
 )
 
 // TestCheckBlockScripts ensures that validating the all of the scripts in a

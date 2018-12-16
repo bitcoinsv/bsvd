@@ -98,13 +98,13 @@ func TestGetAddrWire(t *testing.T) {
 	for i, test := range tests {
 		// Encode the message to wire format.
 		var buf bytes.Buffer
-		err := test.in.BchEncode(&buf, test.pver, test.enc)
+		err := test.in.BsvEncode(&buf, test.pver, test.enc)
 		if err != nil {
-			t.Errorf("BchEncode #%d error %v", i, err)
+			t.Errorf("BsvEncode #%d error %v", i, err)
 			continue
 		}
 		if !bytes.Equal(buf.Bytes(), test.buf) {
-			t.Errorf("BchEncode #%d\n got: %s want: %s", i,
+			t.Errorf("BsvEncode #%d\n got: %s want: %s", i,
 				spew.Sdump(buf.Bytes()), spew.Sdump(test.buf))
 			continue
 		}
@@ -112,13 +112,13 @@ func TestGetAddrWire(t *testing.T) {
 		// Decode the message from wire format.
 		var msg MsgGetAddr
 		rbuf := bytes.NewReader(test.buf)
-		err = msg.BchDecode(rbuf, test.pver, test.enc)
+		err = msg.Bsvdecode(rbuf, test.pver, test.enc)
 		if err != nil {
-			t.Errorf("BchDecode #%d error %v", i, err)
+			t.Errorf("Bsvdecode #%d error %v", i, err)
 			continue
 		}
 		if !reflect.DeepEqual(&msg, test.out) {
-			t.Errorf("BchDecode #%d\n got: %s want: %s", i,
+			t.Errorf("Bsvdecode #%d\n got: %s want: %s", i,
 				spew.Sdump(msg), spew.Sdump(test.out))
 			continue
 		}

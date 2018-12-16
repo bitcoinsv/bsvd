@@ -10,18 +10,18 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/gcash/bchd/database"
-	"github.com/gcash/bchlog"
+	"github.com/bitcoinsv/bsvd/database"
+	"github.com/bitcoinsv/bsvlog"
 	flags "github.com/jessevdk/go-flags"
 )
 
 const (
-	// blockDbNamePrefix is the prefix for the bchd block database.
+	// blockDbNamePrefix is the prefix for the bsvd block database.
 	blockDbNamePrefix = "blocks"
 )
 
 var (
-	log             bchlog.Logger
+	log             bsvlog.Logger
 	shutdownChannel = make(chan error)
 )
 
@@ -61,11 +61,11 @@ func loadBlockDB() (database.DB, error) {
 // around the fact that deferred functions do not run when os.Exit() is called.
 func realMain() error {
 	// Setup logging.
-	backendLogger := bchlog.NewBackend(os.Stdout)
+	backendLogger := bsvlog.NewBackend(os.Stdout)
 	defer os.Stdout.Sync()
 	log = backendLogger.Logger("MAIN")
 	dbLog := backendLogger.Logger("BCDB")
-	dbLog.SetLevel(bchlog.LevelDebug)
+	dbLog.SetLevel(bsvlog.LevelDebug)
 	database.UseLogger(dbLog)
 
 	// Setup the parser options and commands.

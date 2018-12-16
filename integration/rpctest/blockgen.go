@@ -11,13 +11,13 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/gcash/bchd/blockchain"
-	"github.com/gcash/bchd/chaincfg"
-	"github.com/gcash/bchd/chaincfg/chainhash"
-	"github.com/gcash/bchd/mining"
-	"github.com/gcash/bchd/txscript"
-	"github.com/gcash/bchd/wire"
-	"github.com/gcash/bchutil"
+	"github.com/bitcoinsv/bsvd/blockchain"
+	"github.com/bitcoinsv/bsvd/chaincfg"
+	"github.com/bitcoinsv/bsvd/chaincfg/chainhash"
+	"github.com/bitcoinsv/bsvd/mining"
+	"github.com/bitcoinsv/bsvd/txscript"
+	"github.com/bitcoinsv/bsvd/wire"
+	"github.com/bitcoinsv/bsvutil"
 	"sort"
 )
 
@@ -98,8 +98,8 @@ func standardCoinbaseScript(nextBlockHeight int32, extraNonce uint64) ([]byte, e
 // createCoinbaseTx returns a coinbase transaction paying an appropriate
 // subsidy based on the passed block height to the provided address.
 func createCoinbaseTx(coinbaseScript []byte, nextBlockHeight int32,
-	addr bchutil.Address, mineTo []wire.TxOut,
-	net *chaincfg.Params) (*bchutil.Tx, error) {
+	addr bsvutil.Address, mineTo []wire.TxOut,
+	net *chaincfg.Params) (*bsvutil.Tx, error) {
 
 	// Create the script to pay to the provided payment address.
 	pkScript, err := txscript.PayToAddrScript(addr)
@@ -126,7 +126,7 @@ func createCoinbaseTx(coinbaseScript []byte, nextBlockHeight int32,
 			tx.AddTxOut(&mineTo[i])
 		}
 	}
-	return bchutil.NewTx(tx), nil
+	return bsvutil.NewTx(tx), nil
 }
 
 // CreateBlock creates a new block building from the previous block with a
@@ -134,9 +134,9 @@ func createCoinbaseTx(coinbaseScript []byte, nextBlockHeight int32,
 // initialized), then the timestamp of the previous block will be used plus 1
 // second is used. Passing nil for the previous block results in a block that
 // builds off of the genesis block for the specified chain.
-func CreateBlock(prevBlock *bchutil.Block, inclusionTxs []*bchutil.Tx,
-	blockVersion int32, blockTime time.Time, miningAddr bchutil.Address,
-	mineTo []wire.TxOut, net *chaincfg.Params) (*bchutil.Block, error) {
+func CreateBlock(prevBlock *bsvutil.Block, inclusionTxs []*bsvutil.Tx,
+	blockVersion int32, blockTime time.Time, miningAddr bsvutil.Address,
+	mineTo []wire.TxOut, net *chaincfg.Params) (*bsvutil.Block, error) {
 
 	var (
 		prevHash      *chainhash.Hash
@@ -179,7 +179,7 @@ func CreateBlock(prevBlock *bchutil.Block, inclusionTxs []*bchutil.Tx,
 	}
 
 	// Create a new block ready to be solved.
-	var blockTxns []*bchutil.Tx
+	var blockTxns []*bsvutil.Tx
 	if inclusionTxs != nil {
 		blockTxns = append(blockTxns, inclusionTxs...)
 	}
@@ -187,7 +187,7 @@ func CreateBlock(prevBlock *bchutil.Block, inclusionTxs []*bchutil.Tx,
 	if blockHeight > net.MagneticAnonomalyForkHeight {
 		sort.Sort(mining.TxSorter(blockTxns))
 	}
-	blockTxns = append([]*bchutil.Tx{coinbaseTx}, blockTxns...)
+	blockTxns = append([]*bsvutil.Tx{coinbaseTx}, blockTxns...)
 	merkles := blockchain.BuildMerkleTreeStore(blockTxns)
 	var block wire.MsgBlock
 	block.Header = wire.BlockHeader{
@@ -208,7 +208,7 @@ func CreateBlock(prevBlock *bchutil.Block, inclusionTxs []*bchutil.Tx,
 		return nil, errors.New("Unable to solve block")
 	}
 
-	utilBlock := bchutil.NewBlock(&block)
+	utilBlock := bsvutil.NewBlock(&block)
 	utilBlock.SetHeight(blockHeight)
 	return utilBlock, nil
 }

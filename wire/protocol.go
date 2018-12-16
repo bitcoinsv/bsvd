@@ -75,9 +75,9 @@ const (
 	// SFNodeXthin is a flag used to indicate a peer supports xthin blocks.
 	SFNodeXthin
 
-	// SFNodeBitcoinCash indicates a node is running on the Bitcoin Cash
+	// SFNodeBitcoinCash indicates a node is running on the Bitcoin (BSV)
 	// network. Bitcoin Core peers should disconnect upon seeing this service bit.
-	// Technically this is no longer needed as Bitcoin Cash has a different
+	// Technically this is no longer needed as Bitcoin (BSV) has a different
 	// network magic than Bitcoin Core so connections should not be possible.
 	SFNodeBitcoinCash
 

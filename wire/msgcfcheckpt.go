@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/gcash/bchd/chaincfg/chainhash"
+	"github.com/bitcoinsv/bsvd/chaincfg/chainhash"
 )
 
 const (
@@ -49,9 +49,9 @@ func (msg *MsgCFCheckpt) AddCFHeader(header *chainhash.Hash) error {
 	return nil
 }
 
-// BchDecode decodes r using the bitcoin protocol encoding into the receiver.
+// Bsvdecode decodes r using the bitcoin protocol encoding into the receiver.
 // This is part of the Message interface implementation.
-func (msg *MsgCFCheckpt) BchDecode(r io.Reader, pver uint32, _ MessageEncoding) error {
+func (msg *MsgCFCheckpt) Bsvdecode(r io.Reader, pver uint32, _ MessageEncoding) error {
 	// Read filter type
 	err := readElement(r, &msg.FilterType)
 	if err != nil {
@@ -90,9 +90,9 @@ func (msg *MsgCFCheckpt) BchDecode(r io.Reader, pver uint32, _ MessageEncoding) 
 	return nil
 }
 
-// BchEncode encodes the receiver to w using the bitcoin protocol encoding.
+// BsvEncode encodes the receiver to w using the bitcoin protocol encoding.
 // This is part of the Message interface implementation.
-func (msg *MsgCFCheckpt) BchEncode(w io.Writer, pver uint32, _ MessageEncoding) error {
+func (msg *MsgCFCheckpt) BsvEncode(w io.Writer, pver uint32, _ MessageEncoding) error {
 	// Write filter type
 	err := writeElement(w, msg.FilterType)
 	if err != nil {
@@ -124,7 +124,7 @@ func (msg *MsgCFCheckpt) BchEncode(w io.Writer, pver uint32, _ MessageEncoding) 
 
 // Deserialize decodes a filter header from r into the receiver using a format
 // that is suitable for long-term storage such as a database. This function
-// differs from BchDecode in that BchDecode decodes from the bitcoin wire
+// differs from Bsvdecode in that Bsvdecode decodes from the bitcoin wire
 // protocol as it was sent across the network.  The wire encoding can
 // technically differ depending on the protocol version and doesn't even really
 // need to match the format of a stored filter header at all. As of the time
@@ -134,8 +134,8 @@ func (msg *MsgCFCheckpt) BchEncode(w io.Writer, pver uint32, _ MessageEncoding) 
 func (msg *MsgCFCheckpt) Deserialize(r io.Reader) error {
 	// At the current time, there is no difference between the wire encoding
 	// and the stable long-term storage format.  As a result, make use of
-	// BchDecode.
-	return msg.BchDecode(r, 0, BaseEncoding)
+	// Bsvdecode.
+	return msg.Bsvdecode(r, 0, BaseEncoding)
 }
 
 // Command returns the protocol command string for the message.  This is part

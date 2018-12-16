@@ -13,9 +13,9 @@ import (
 
 	"golang.org/x/crypto/ripemd160"
 
-	"github.com/gcash/bchd/bchec"
-	"github.com/gcash/bchd/chaincfg/chainhash"
-	"github.com/gcash/bchd/wire"
+	"github.com/bitcoinsv/bsvd/bsvec"
+	"github.com/bitcoinsv/bsvd/chaincfg/chainhash"
+	"github.com/bitcoinsv/bsvd/wire"
 	"hash"
 )
 
@@ -30,9 +30,9 @@ type opcode struct {
 	opfunc func(*parsedOpcode, *Engine) error
 }
 
-// These constants are the values of the official opcodes used on the bch wiki,
+// These constants are the values of the official opcodes used on the bsv wiki,
 // in bitcoin core and in most if not all other references and software related
-// to handling BCH scripts.
+// to handling BSV scripts.
 const (
 	OP_0                   = 0x00 // 0
 	OP_FALSE               = 0x00 // 0 - AKA OP_0
@@ -2290,19 +2290,19 @@ func opcodeCheckSig(op *parsedOpcode, vm *Engine) error {
 		return nil
 	}
 
-	pubKey, err := bchec.ParsePubKey(pkBytes, bchec.S256())
+	pubKey, err := bsvec.ParsePubKey(pkBytes, bsvec.S256())
 	if err != nil {
 		vm.dstack.PushBool(false)
 		return nil
 	}
 
-	var signature *bchec.Signature
+	var signature *bsvec.Signature
 	if vm.hasFlag(ScriptVerifyStrictEncoding) ||
 		vm.hasFlag(ScriptVerifyDERSignatures) {
 
-		signature, err = bchec.ParseDERSignature(sigBytes, bchec.S256())
+		signature, err = bsvec.ParseDERSignature(sigBytes, bsvec.S256())
 	} else {
-		signature, err = bchec.ParseSignature(sigBytes, bchec.S256())
+		signature, err = bsvec.ParseSignature(sigBytes, bsvec.S256())
 	}
 	if err != nil {
 		vm.dstack.PushBool(false)
@@ -2350,7 +2350,7 @@ func opcodeCheckSigVerify(op *parsedOpcode, vm *Engine) error {
 // the same signature multiple times when verifying a multisig.
 type parsedSigInfo struct {
 	signature       []byte
-	parsedSignature *bchec.Signature
+	parsedSignature *bsvec.Signature
 	parsed          bool
 }
 
@@ -2495,7 +2495,7 @@ func opcodeCheckMultiSig(op *parsedOpcode, vm *Engine) error {
 		signature := rawSig[:len(rawSig)-1]
 
 		// Only parse and check the signature encoding once.
-		var parsedSig *bchec.Signature
+		var parsedSig *bsvec.Signature
 		if !sigInfo.parsed {
 			if err := vm.checkHashTypeEncoding(hashType); err != nil {
 				return err
@@ -2509,11 +2509,11 @@ func opcodeCheckMultiSig(op *parsedOpcode, vm *Engine) error {
 			if vm.hasFlag(ScriptVerifyStrictEncoding) ||
 				vm.hasFlag(ScriptVerifyDERSignatures) {
 
-				parsedSig, err = bchec.ParseDERSignature(signature,
-					bchec.S256())
+				parsedSig, err = bsvec.ParseDERSignature(signature,
+					bsvec.S256())
 			} else {
-				parsedSig, err = bchec.ParseSignature(signature,
-					bchec.S256())
+				parsedSig, err = bsvec.ParseSignature(signature,
+					bsvec.S256())
 			}
 			sigInfo.parsed = true
 			if err != nil {
@@ -2535,7 +2535,7 @@ func opcodeCheckMultiSig(op *parsedOpcode, vm *Engine) error {
 		}
 
 		// Parse the pubkey.
-		parsedPubKey, err := bchec.ParsePubKey(pubKey, bchec.S256())
+		parsedPubKey, err := bsvec.ParsePubKey(pubKey, bsvec.S256())
 		if err != nil {
 			continue
 		}
@@ -2634,19 +2634,19 @@ func opcodeCheckDataSig(op *parsedOpcode, vm *Engine) error {
 		return err
 	}
 
-	pubKey, err := bchec.ParsePubKey(pkBytes, bchec.S256())
+	pubKey, err := bsvec.ParsePubKey(pkBytes, bsvec.S256())
 	if err != nil {
 		vm.dstack.PushBool(false)
 		return nil
 	}
 
-	var signature *bchec.Signature
+	var signature *bsvec.Signature
 	if vm.hasFlag(ScriptVerifyStrictEncoding) ||
 		vm.hasFlag(ScriptVerifyDERSignatures) {
 
-		signature, err = bchec.ParseDERSignature(sigBytes, bchec.S256())
+		signature, err = bsvec.ParseDERSignature(sigBytes, bsvec.S256())
 	} else {
-		signature, err = bchec.ParseSignature(sigBytes, bchec.S256())
+		signature, err = bsvec.ParseSignature(sigBytes, bsvec.S256())
 	}
 	if err != nil {
 		vm.dstack.PushBool(false)

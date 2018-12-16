@@ -9,8 +9,8 @@ import (
 	"fmt"
 	"math/big"
 
-	"github.com/gcash/bchd/bchec"
-	"github.com/gcash/bchd/wire"
+	"github.com/bitcoinsv/bsvd/bsvec"
+	"github.com/bitcoinsv/bsvd/wire"
 )
 
 // ScriptFlags is a bitmask defining additional operations or tests that will be
@@ -101,7 +101,7 @@ const (
 )
 
 // halforder is used to tame ECDSA malleability (see BIP0062).
-var halfOrder = new(big.Int).Rsh(bchec.S256().N, 1)
+var halfOrder = new(big.Int).Rsh(bsvec.S256().N, 1)
 
 // Engine is the virtual machine that executes scripts.
 type Engine struct {

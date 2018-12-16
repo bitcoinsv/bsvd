@@ -12,10 +12,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/gcash/bchd/chaincfg/chainhash"
-	"github.com/gcash/bchd/database"
-	"github.com/gcash/bchd/wire"
-	"github.com/gcash/bchutil"
+	"github.com/bitcoinsv/bsvd/chaincfg/chainhash"
+	"github.com/bitcoinsv/bsvd/database"
+	"github.com/bitcoinsv/bsvd/wire"
+	"github.com/bitcoinsv/bsvutil"
 )
 
 const (
@@ -211,7 +211,7 @@ func dbFetchOrCreateVersion(dbTx database.Tx, key []byte, defaultVersion uint32)
 //  - header code: 0x13 (coinbase, height 9)
 //  - reserved: 0x00
 //  - compressed txout 0:
-//    - 0x32: VLQ-encoded compressed amount for 5000000000 (50 BCH)
+//    - 0x32: VLQ-encoded compressed amount for 5000000000 (50 BSV)
 //    - 0x05: special script type pay-to-pubkey
 //    - 0x11...5c: x-coordinate of the pubkey
 //
@@ -228,14 +228,14 @@ func dbFetchOrCreateVersion(dbTx database.Tx, key []byte, defaultVersion uint32)
 //    - header code: 0x8b9970 (not coinbase, height 100024)
 //    - reserved: 0x00
 //    - compressed txout:
-//      - 0x91f20f: VLQ-encoded compressed amount for 34405000000 (344.05 BCH)
+//      - 0x91f20f: VLQ-encoded compressed amount for 34405000000 (344.05 BSV)
 //      - 0x00: special script type pay-to-pubkey-hash
 //      - 0x6e...86: pubkey hash
 //  - Second to last spent output:
 //    - header code: 0x8b9970 (not coinbase, height 100024)
 //    - reserved: 0x00
 //    - compressed txout:
-//      - 0x86c647: VLQ-encoded compressed amount for 13761000000 (137.61 BCH)
+//      - 0x86c647: VLQ-encoded compressed amount for 13761000000 (137.61 BSV)
 //      - 0x00: special script type pay-to-pubkey-hash
 //      - 0xb2...ec: pubkey hash
 // -----------------------------------------------------------------------------
@@ -267,7 +267,7 @@ type SpentTxOut struct {
 // main chain.
 //
 // This function is safe for concurrent access.
-func (b *BlockChain) FetchSpendJournal(targetBlock *bchutil.Block) ([]SpentTxOut, error) {
+func (b *BlockChain) FetchSpendJournal(targetBlock *bsvutil.Block) ([]SpentTxOut, error) {
 	b.chainLock.RLock()
 	defer b.chainLock.RUnlock()
 
@@ -461,7 +461,7 @@ func serializeSpendJournalEntry(stxos []SpentTxOut) []byte {
 // NOTE: Legacy entries will not have the coinbase flag or height set unless it
 // was the final output spend in the containing transaction.  It is up to the
 // caller to handle this properly by looking the information up in the utxo set.
-func dbFetchSpendJournalEntry(dbTx database.Tx, block *bchutil.Block) ([]SpentTxOut, error) {
+func dbFetchSpendJournalEntry(dbTx database.Tx, block *bsvutil.Block) ([]SpentTxOut, error) {
 	// Exclude the coinbase transaction since it can't spend anything.
 	spendBucket := dbTx.Metadata().Bucket(spendJournalBucketName)
 	serialized := spendBucket.Get(block.Hash()[:])
@@ -545,7 +545,7 @@ func dbRemoveSpendJournalEntry(dbTx database.Tx, blockHash *chainhash.Hash) erro
 //
 //  - header code: 0x03 (coinbase, height 1)
 //  - compressed txout:
-//    - 0x32: VLQ-encoded compressed amount for 5000000000 (50 BCH)
+//    - 0x32: VLQ-encoded compressed amount for 5000000000 (50 BSV)
 //    - 0x04: special script type pay-to-pubkey
 //    - 0x96...52: x-coordinate of the pubkey
 //
@@ -560,7 +560,7 @@ func dbRemoveSpendJournalEntry(dbTx database.Tx, blockHash *chainhash.Hash) erro
 //
 //  - header code: 0x8cf316 (not coinbase, height 113931)
 //  - compressed txout:
-//    - 0x8009: VLQ-encoded compressed amount for 15000000 (0.15 BCH)
+//    - 0x8009: VLQ-encoded compressed amount for 15000000 (0.15 BSV)
 //    - 0x00: special script type pay-to-pubkey-hash
 //    - 0xb8...58: pubkey hash
 //
@@ -575,7 +575,7 @@ func dbRemoveSpendJournalEntry(dbTx database.Tx, blockHash *chainhash.Hash) erro
 //
 //  - header code: 0xa8a258 (not coinbase, height 338156)
 //  - compressed txout:
-//    - 0x8ba5b9e763: VLQ-encoded compressed amount for 366875659 (3.66875659 BCH)
+//    - 0x8ba5b9e763: VLQ-encoded compressed amount for 366875659 (3.66875659 BSV)
 //    - 0x01: special script type pay-to-script-hash
 //    - 0x1d...e6: script hash
 // -----------------------------------------------------------------------------
@@ -1126,7 +1126,7 @@ func dbFetchPruneHeight(dbTx database.Tx) uint32 {
 // the genesis block, so it must only be called on an uninitialized database.
 func (b *BlockChain) createChainState() error {
 	// Create a new node from the genesis block and set it as the best node.
-	genesisBlock := bchutil.NewBlock(b.chainParams.GenesisBlock)
+	genesisBlock := bsvutil.NewBlock(b.chainParams.GenesisBlock)
 	genesisBlock.SetHeight(0)
 	header := &genesisBlock.MsgBlock().Header
 	node := newBlockNode(header, nil)
@@ -1428,9 +1428,9 @@ func dbFetchHeaderByHeight(dbTx database.Tx, height int32) (*wire.BlockHeader, e
 }
 
 // dbFetchBlockByNode uses an existing database transaction to retrieve the
-// raw block for the provided node, deserialize it, and return a bchutil.Block
+// raw block for the provided node, deserialize it, and return a bsvutil.Block
 // with the height set.
-func dbFetchBlockByNode(dbTx database.Tx, node *blockNode) (*bchutil.Block, error) {
+func dbFetchBlockByNode(dbTx database.Tx, node *blockNode) (*bsvutil.Block, error) {
 	// Load the raw block bytes from the database.
 	blockBytes, err := dbTx.FetchBlock(&node.hash)
 	if err != nil {
@@ -1438,7 +1438,7 @@ func dbFetchBlockByNode(dbTx database.Tx, node *blockNode) (*bchutil.Block, erro
 	}
 
 	// Create the encapsulated block and set the height appropriately.
-	block, err := bchutil.NewBlockFromBytes(blockBytes)
+	block, err := bsvutil.NewBlockFromBytes(blockBytes)
 	if err != nil {
 		return nil, err
 	}
@@ -1471,7 +1471,7 @@ func dbStoreBlockNode(dbTx database.Tx, node *blockNode) error {
 
 // dbStoreBlock stores the provided block in the database if it is not already
 // there. The full block data is written to ffldb.
-func dbStoreBlock(dbTx database.Tx, block *bchutil.Block) error {
+func dbStoreBlock(dbTx database.Tx, block *bsvutil.Block) error {
 	hasBlock, err := dbTx.HasBlock(block.Hash())
 	if err != nil {
 		return err
@@ -1495,7 +1495,7 @@ func blockIndexKey(blockHash *chainhash.Hash, blockHeight uint32) []byte {
 // BlockByHeight returns the block at the given height in the main chain.
 //
 // This function is safe for concurrent access.
-func (b *BlockChain) BlockByHeight(blockHeight int32) (*bchutil.Block, error) {
+func (b *BlockChain) BlockByHeight(blockHeight int32) (*bsvutil.Block, error) {
 	// Lookup the block height in the best chain.
 	node := b.bestChain.NodeByHeight(blockHeight)
 	if node == nil {
@@ -1504,7 +1504,7 @@ func (b *BlockChain) BlockByHeight(blockHeight int32) (*bchutil.Block, error) {
 	}
 
 	// Load the block from the database and return it.
-	var block *bchutil.Block
+	var block *bsvutil.Block
 	err := b.db.View(func(dbTx database.Tx) error {
 		var err error
 		block, err = dbFetchBlockByNode(dbTx, node)
@@ -1517,7 +1517,7 @@ func (b *BlockChain) BlockByHeight(blockHeight int32) (*bchutil.Block, error) {
 // the appropriate chain height set.
 //
 // This function is safe for concurrent access.
-func (b *BlockChain) BlockByHash(hash *chainhash.Hash) (*bchutil.Block, error) {
+func (b *BlockChain) BlockByHash(hash *chainhash.Hash) (*bsvutil.Block, error) {
 	// Lookup the block hash in block index and ensure it is in the best
 	// chain.
 	node := b.index.LookupNode(hash)
@@ -1527,7 +1527,7 @@ func (b *BlockChain) BlockByHash(hash *chainhash.Hash) (*bchutil.Block, error) {
 	}
 
 	// Load the block from the database and return it.
-	var block *bchutil.Block
+	var block *bsvutil.Block
 	err := b.db.View(func(dbTx database.Tx) error {
 		var err error
 		block, err = dbFetchBlockByNode(dbTx, node)

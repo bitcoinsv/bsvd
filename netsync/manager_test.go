@@ -11,18 +11,18 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gcash/bchd/blockchain"
-	"github.com/gcash/bchd/chaincfg"
-	"github.com/gcash/bchd/chaincfg/chainhash"
-	"github.com/gcash/bchd/database"
-	_ "github.com/gcash/bchd/database/ffldb"
-	"github.com/gcash/bchd/integration/rpctest"
-	"github.com/gcash/bchd/mempool"
-	"github.com/gcash/bchd/netsync"
-	"github.com/gcash/bchd/peer"
-	"github.com/gcash/bchd/txscript"
-	"github.com/gcash/bchd/wire"
-	"github.com/gcash/bchutil"
+	"github.com/bitcoinsv/bsvd/blockchain"
+	"github.com/bitcoinsv/bsvd/chaincfg"
+	"github.com/bitcoinsv/bsvd/chaincfg/chainhash"
+	"github.com/bitcoinsv/bsvd/database"
+	_ "github.com/bitcoinsv/bsvd/database/ffldb"
+	"github.com/bitcoinsv/bsvd/integration/rpctest"
+	"github.com/bitcoinsv/bsvd/mempool"
+	"github.com/bitcoinsv/bsvd/netsync"
+	"github.com/bitcoinsv/bsvd/peer"
+	"github.com/bitcoinsv/bsvd/txscript"
+	"github.com/bitcoinsv/bsvd/wire"
+	"github.com/bitcoinsv/bsvutil"
 )
 
 const (
@@ -93,7 +93,7 @@ func (ctx *testContext) Setup(config *testConfig) error {
 		FetchUtxoView:  chain.FetchUtxoView,
 		BestHeight:     func() int32 { return chain.BestSnapshot().Height },
 		MedianTimePast: func() time.Time { return chain.BestSnapshot().MedianTime },
-		CalcSequenceLock: func(tx *bchutil.Tx, view *blockchain.UtxoViewpoint) (*blockchain.SequenceLock, error) {
+		CalcSequenceLock: func(tx *bsvutil.Tx, view *blockchain.UtxoViewpoint) (*blockchain.SequenceLock, error) {
 			return chain.CalcSequenceLock(tx, view, true)
 		},
 		IsDeploymentActive: chain.IsDeploymentActive,
@@ -316,10 +316,10 @@ func TestBlockchainSync(t *testing.T) {
 		t.Fatalf("Error constructing P2SH address: %v", err)
 	}
 
-	genesisBlock := bchutil.NewBlock(chainParams.GenesisBlock)
+	genesisBlock := bsvutil.NewBlock(chainParams.GenesisBlock)
 
 	// Generate chain of 3 blocks
-	blocks := make([]*bchutil.Block, 0, 3)
+	blocks := make([]*bsvutil.Block, 0, 3)
 	blockVersion := int32(2)
 	prevBlock := genesisBlock
 	for i := 0; i < 3; i++ {
@@ -392,7 +392,7 @@ func TestBlockchainSync(t *testing.T) {
 
 	timestamp := time.Now().Truncate(time.Second)
 	prevBlock = blocks[len(blocks)-1]
-	txns := []*bchutil.Tx{spendTx}
+	txns := []*bsvutil.Tx{spendTx}
 	block, err := rpctest.CreateBlock(prevBlock, txns, blockVersion,
 		timestamp, address, []wire.TxOut{}, &chainParams)
 	if err != nil {
@@ -558,7 +558,7 @@ func TestMempoolSync(t *testing.T) {
 		t.Fatalf("Error constructing P2SH address: %v", err)
 	}
 
-	genesisBlock := bchutil.NewBlock(chainParams.GenesisBlock)
+	genesisBlock := bsvutil.NewBlock(chainParams.GenesisBlock)
 
 	// Generate block with spendable coinbase
 	blockVersion := int32(2)
@@ -743,7 +743,7 @@ func newMessageChans() *msgChans {
 	return &instance
 }
 
-func buildBlockInv(blocks ...*bchutil.Block) *wire.MsgInv {
+func buildBlockInv(blocks ...*bsvutil.Block) *wire.MsgInv {
 	msg := wire.NewMsgInv()
 	for _, block := range blocks {
 		invVect := wire.NewInvVect(wire.InvTypeBlock, block.Hash())
@@ -754,7 +754,7 @@ func buildBlockInv(blocks ...*bchutil.Block) *wire.MsgInv {
 
 // createSpendingTx constructs a transaction spending from the provided one
 // which sends the entire value of one output to the given address.
-func createSpendingTx(prevTx *bchutil.Tx, index uint32, scriptSig []byte, address bchutil.Address) (*bchutil.Tx, error) {
+func createSpendingTx(prevTx *bsvutil.Tx, index uint32, scriptSig []byte, address bsvutil.Address) (*bsvutil.Tx, error) {
 	scriptPubKey, err := txscript.PayToAddrScript(address)
 	if err != nil {
 		return nil, err
@@ -767,5 +767,5 @@ func createSpendingTx(prevTx *bchutil.Tx, index uint32, scriptSig []byte, addres
 	spendTx := wire.NewMsgTx(1)
 	spendTx.AddTxIn(wire.NewTxIn(prevOutPoint, scriptSig))
 	spendTx.AddTxOut(wire.NewTxOut(prevOut.Value, scriptPubKey))
-	return bchutil.NewTx(spendTx), nil
+	return bsvutil.NewTx(spendTx), nil
 }

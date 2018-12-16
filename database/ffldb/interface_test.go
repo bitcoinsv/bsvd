@@ -25,11 +25,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gcash/bchd/chaincfg"
-	"github.com/gcash/bchd/chaincfg/chainhash"
-	"github.com/gcash/bchd/database"
-	"github.com/gcash/bchd/wire"
-	"github.com/gcash/bchutil"
+	"github.com/bitcoinsv/bsvd/chaincfg"
+	"github.com/bitcoinsv/bsvd/chaincfg/chainhash"
+	"github.com/bitcoinsv/bsvd/database"
+	"github.com/bitcoinsv/bsvd/wire"
+	"github.com/bitcoinsv/bsvutil"
 )
 
 var (
@@ -49,7 +49,7 @@ var (
 
 // loadBlocks loads the blocks contained in the testdata directory and returns
 // a slice of them.
-func loadBlocks(t *testing.T, dataFile string, network wire.BitcoinNet) ([]*bchutil.Block, error) {
+func loadBlocks(t *testing.T, dataFile string, network wire.BitcoinNet) ([]*bsvutil.Block, error) {
 	// Open the file that contains the blocks for reading.
 	fi, err := os.Open(dataFile)
 	if err != nil {
@@ -65,8 +65,8 @@ func loadBlocks(t *testing.T, dataFile string, network wire.BitcoinNet) ([]*bchu
 	dr := bzip2.NewReader(fi)
 
 	// Set the first block as the genesis block.
-	blocks := make([]*bchutil.Block, 0, 256)
-	genesis := bchutil.NewBlock(chaincfg.MainNetParams.GenesisBlock)
+	blocks := make([]*bsvutil.Block, 0, 256)
+	genesis := bsvutil.NewBlock(chaincfg.MainNetParams.GenesisBlock)
 	blocks = append(blocks, genesis)
 
 	// Load the remaining blocks.
@@ -105,7 +105,7 @@ func loadBlocks(t *testing.T, dataFile string, network wire.BitcoinNet) ([]*bchu
 		}
 
 		// Deserialize and store the block.
-		block, err := bchutil.NewBlockFromBytes(blockBytes)
+		block, err := bsvutil.NewBlockFromBytes(blockBytes)
 		if err != nil {
 			t.Errorf("Failed to parse block %v: %v", height, err)
 			return nil, err
@@ -142,7 +142,7 @@ type testContext struct {
 	db          database.DB
 	bucketDepth int
 	isWritable  bool
-	blocks      []*bchutil.Block
+	blocks      []*bsvutil.Block
 }
 
 // keyPair houses a key/value pair.  It is used over maps so ordering can be

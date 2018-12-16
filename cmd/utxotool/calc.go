@@ -3,11 +3,11 @@ package main
 import (
 	"bytes"
 	"encoding/binary"
-	"github.com/gcash/bchd/bchec"
-	"github.com/gcash/bchd/blockchain"
-	"github.com/gcash/bchd/chaincfg/chainhash"
-	"github.com/gcash/bchd/database"
-	"github.com/gcash/bchd/wire"
+	"github.com/bitcoinsv/bsvd/bsvec"
+	"github.com/bitcoinsv/bsvd/blockchain"
+	"github.com/bitcoinsv/bsvd/chaincfg/chainhash"
+	"github.com/bitcoinsv/bsvd/database"
+	"github.com/bitcoinsv/bsvd/wire"
 	"io"
 )
 
@@ -64,7 +64,7 @@ func CalcUtxoSet(db database.DB, height int32, utxoWriter io.Writer) (*chainhash
 		return nil, 0, err
 	}
 	log.Info("Loading Utxo set from disk. This is going to take a while...")
-	m := bchec.NewMultiset(bchec.S256())
+	m := bsvec.NewMultiset(bsvec.S256())
 
 	// Let's avoid allocating new memory when iterating over utxos
 	var (

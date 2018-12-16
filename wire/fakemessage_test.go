@@ -15,19 +15,19 @@ type fakeMessage struct {
 	forceLenErr    bool
 }
 
-// BchDecode doesn't do anything.  It just satisfies the wire.Message
+// Bsvdecode doesn't do anything.  It just satisfies the wire.Message
 // interface.
-func (msg *fakeMessage) BchDecode(r io.Reader, pver uint32, enc MessageEncoding) error {
+func (msg *fakeMessage) Bsvdecode(r io.Reader, pver uint32, enc MessageEncoding) error {
 	return nil
 }
 
-// BchEncode writes the payload field of the fake message or forces an error
+// BsvEncode writes the payload field of the fake message or forces an error
 // if the forceEncodeErr flag of the fake message is set.  It also satisfies the
 // wire.Message interface.
-func (msg *fakeMessage) BchEncode(w io.Writer, pver uint32, enc MessageEncoding) error {
+func (msg *fakeMessage) BsvEncode(w io.Writer, pver uint32, enc MessageEncoding) error {
 	if msg.forceEncodeErr {
 		err := &MessageError{
-			Func:        "fakeMessage.BchEncode",
+			Func:        "fakeMessage.BsvEncode",
 			Description: "intentional error",
 		}
 		return err

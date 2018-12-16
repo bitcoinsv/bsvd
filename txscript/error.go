@@ -31,7 +31,7 @@ const (
 	ErrInvalidIndex
 
 	// ErrUnsupportedAddress is returned when a concrete type that
-	// implements a bchutil.Address is not a supported type.
+	// implements a bsvutil.Address is not a supported type.
 	ErrUnsupportedAddress
 
 	// ErrNotMultisigScript is returned from CalcMultiSigStats when the

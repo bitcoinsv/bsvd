@@ -7,7 +7,7 @@ package txscript
 import (
 	"bytes"
 	"encoding/hex"
-	"github.com/gcash/bchd/wire"
+	"github.com/bitcoinsv/bsvd/wire"
 	"testing"
 )
 

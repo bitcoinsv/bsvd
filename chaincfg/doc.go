@@ -25,8 +25,8 @@
 //          "fmt"
 //          "log"
 //
-//          "github.com/gcash/bchutil"
-//          "github.com/gcash/bchd/chaincfg"
+//          "github.com/bitcoinsv/bsvutil"
+//          "github.com/bitcoinsv/bsvd/chaincfg"
 //  )
 //
 //  var testnet = flag.Bool("testnet", false, "operate on the testnet Bitcoin network")
@@ -46,7 +46,7 @@
 //
 //          // Create and print new payment address, specific to the active network.
 //          pubKeyHash := make([]byte, 20)
-//          addr, err := bchutil.NewAddressPubKeyHash(pubKeyHash, chainParams)
+//          addr, err := bsvutil.NewAddressPubKeyHash(pubKeyHash, chainParams)
 //          if err != nil {
 //                  log.Fatal(err)
 //          }

@@ -1,15 +1,15 @@
 chaincfg
 ========
 
-[![Build Status](https://travis-ci.org/gcash/bchd.png?branch=master)](https://travis-ci.org/gcash/bchd)
+[![Build Status](https://travis-ci.org/bitcoinsv/bsvd.png?branch=master)](https://travis-ci.org/bitcoinsv/bsvd)
 [![ISC License](http://img.shields.io/badge/license-ISC-blue.svg)](http://copyfree.org)
-[![GoDoc](https://img.shields.io/badge/godoc-reference-blue.svg)](http://godoc.org/github.com/gcash/bchd/chaincfg)
+[![GoDoc](https://img.shields.io/badge/godoc-reference-blue.svg)](http://godoc.org/github.com/bitcoinsv/bsvd/chaincfg)
 
 Package chaincfg defines chain configuration parameters for the three standard
 Bitcoin networks and provides the ability for callers to define their own custom
 Bitcoin networks.
 
-Although this package was primarily written for bchd, it has intentionally been
+Although this package was primarily written for bsvd, it has intentionally been
 designed so it can be used as a standalone package for any projects needing to
 use parameters for the standard Bitcoin Cash networks or for projects needing to
 define their own network.
@@ -24,8 +24,8 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/gcash/bchutil"
-	"github.com/gcash/bchd/chaincfg"
+	"github.com/bitcoinsv/bsvutil"
+	"github.com/bitcoinsv/bsvd/chaincfg"
 )
 
 var testnet = flag.Bool("testnet", false, "operate on the testnet Bitcoin network")
@@ -45,7 +45,7 @@ func main() {
 
 	// Create and print new payment address, specific to the active network.
 	pubKeyHash := make([]byte, 20)
-	addr, err := bchutil.NewAddressPubKeyHash(pubKeyHash, chainParams)
+	addr, err := bsvutil.NewAddressPubKeyHash(pubKeyHash, chainParams)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -56,7 +56,7 @@ func main() {
 ## Installation and Updating
 
 ```bash
-$ go get -u github.com/gcash/bchd/chaincfg
+$ go get -u github.com/bitcoinsv/bsvd/chaincfg
 ```
 
 ## License

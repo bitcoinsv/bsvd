@@ -8,19 +8,19 @@ Package rpcclient implements a websocket-enabled Bitcoin JSON-RPC client.
 Overview
 
 This client provides a robust and easy to use client for interfacing with a
-Bitcoin RPC server that uses a bchd/bitcoin core compatible Bitcoin JSON-RPC
-API.  This client has been tested with bchd (https://github.com/gcash/bchd),
-bchwallet (https://github.com/gcash/bchwallet), and
+Bitcoin RPC server that uses a bsvd/bitcoin core compatible Bitcoin JSON-RPC
+API.  This client has been tested with bsvd (https://github.com/bitcoinsv/bsvd),
+bsvwallet (https://github.com/bitcoinsv/bsvwallet), and
 bitcoin core (https://github.com/bitcoin).
 
-In addition to the compatible standard HTTP POST JSON-RPC API, bchd and
-bchwallet provide a websocket interface that is more efficient than the standard
+In addition to the compatible standard HTTP POST JSON-RPC API, bsvd and
+bsvwallet provide a websocket interface that is more efficient than the standard
 HTTP POST method of accessing RPC.  The section below discusses the differences
 between HTTP POST and websockets.
 
 By default, this client assumes the RPC server supports websockets and has
 TLS enabled.  In practice, this currently means it assumes you are talking to
-bchd or bchwallet by default.  However, configuration options are provided to
+bsvd or bsvwallet by default.  However, configuration options are provided to
 fall back to HTTP POST and disable TLS to support talking with inferior bitcoin
 core style RPC servers.
 
@@ -31,8 +31,8 @@ issues the call, waits for the response, and closes the connection.  This adds
 quite a bit of overhead to every call and lacks flexibility for features such as
 notifications.
 
-In contrast, the websocket-based JSON-RPC interface provided by bchd and
-bchwallet only uses a single connection that remains open and allows
+In contrast, the websocket-based JSON-RPC interface provided by bsvd and
+bsvwallet only uses a single connection that remains open and allows
 asynchronous bi-directional communication.
 
 The websocket interface supports all of the same commands as HTTP POST, but they
@@ -63,7 +63,7 @@ The first important part of notifications is to realize that they will only
 work when connected via websockets.  This should intuitively make sense
 because HTTP POST mode does not keep a connection open!
 
-All notifications provided by bchd require registration to opt-in.  For example,
+All notifications provided by bsvd require registration to opt-in.  For example,
 if you want to be notified when funds are received by a set of addresses, you
 register the addresses via the NotifyReceived (or NotifyReceivedAsync) function.
 
@@ -103,17 +103,17 @@ flag to true in the connection config when creating the client.
 Minor RPC Server Differences and Chain/Wallet Separation
 
 Some of the commands are extensions specific to a particular RPC server.  For
-example, the DebugLevel call is an extension only provided by bchd (and
-bchwallet passthrough).  Therefore if you call one of these commands against
+example, the DebugLevel call is an extension only provided by bsvd (and
+bsvwallet passthrough).  Therefore if you call one of these commands against
 an RPC server that doesn't provide them, you will get an unimplemented error
 from the server.  An effort has been made to call out which commmands are
 extensions in their documentation.
 
-Also, it is important to realize that bchd intentionally separates the wallet
-functionality into a separate process named bchwallet.  This means if you are
-connected to the bchd RPC server directly, only the RPCs which are related to
+Also, it is important to realize that bsvd intentionally separates the wallet
+functionality into a separate process named bsvwallet.  This means if you are
+connected to the bsvd RPC server directly, only the RPCs which are related to
 chain services will be available.  Depending on your application, you might only
-need chain-related RPCs.  In contrast, bchwallet provides pass through treatment
+need chain-related RPCs.  In contrast, bsvwallet provides pass through treatment
 for chain-related RPCs, so it supports them in addition to wallet-related RPCs.
 
 Errors
@@ -166,12 +166,12 @@ The following full-blown client examples are in the examples directory:
  - bitcoincorehttp
    Connects to a bitcoin core RPC server using HTTP POST mode with TLS disabled
    and gets the current block count
- - bchdwebsockets
-   Connects to a bchd RPC server using TLS-secured websockets, registers for
+ - bsvdwebsockets
+   Connects to a bsvd RPC server using TLS-secured websockets, registers for
    block connected and block disconnected notifications, and gets the current
    block count
- - bchwalletwebsockets
-   Connects to a bchwallet RPC server using TLS-secured websockets, registers
+ - bsvwalletwebsockets
+   Connects to a bsvwallet RPC server using TLS-secured websockets, registers
    for notifications about changes to account balances, and gets a list of
    unspent transaction outputs (utxos) the wallet can sign
 */

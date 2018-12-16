@@ -20,14 +20,14 @@ import (
 
 	"sort"
 
-	"github.com/gcash/bchd/bchec"
-	"github.com/gcash/bchd/blockchain"
-	"github.com/gcash/bchd/chaincfg"
-	"github.com/gcash/bchd/chaincfg/chainhash"
-	"github.com/gcash/bchd/mining"
-	"github.com/gcash/bchd/txscript"
-	"github.com/gcash/bchd/wire"
-	"github.com/gcash/bchutil"
+	"github.com/bitcoinsv/bsvd/bsvec"
+	"github.com/bitcoinsv/bsvd/blockchain"
+	"github.com/bitcoinsv/bsvd/chaincfg"
+	"github.com/bitcoinsv/bsvd/chaincfg/chainhash"
+	"github.com/bitcoinsv/bsvd/mining"
+	"github.com/bitcoinsv/bsvd/txscript"
+	"github.com/bitcoinsv/bsvd/wire"
+	"github.com/bitcoinsv/bsvutil"
 )
 
 const (
@@ -53,7 +53,7 @@ var (
 
 	// lowFee is a single satoshi and exists to make the test code more
 	// readable.
-	lowFee = bchutil.Amount(1)
+	lowFee = bsvutil.Amount(1)
 )
 
 // TestInstance is an interface that describes a specific test instance returned
@@ -157,7 +157,7 @@ func (b RejectedNonCanonicalBlock) FullBlockTestInstance() {}
 // additional metadata such as the block its in and how much it pays.
 type spendableOut struct {
 	prevOut wire.OutPoint
-	amount  bchutil.Amount
+	amount  bsvutil.Amount
 }
 
 // makeSpendableOutForTx returns a spendable output for the given transaction
@@ -168,7 +168,7 @@ func makeSpendableOutForTx(tx *wire.MsgTx, txOutIndex uint32) spendableOut {
 			Hash:  tx.TxHash(),
 			Index: txOutIndex,
 		},
-		amount: bchutil.Amount(tx.TxOut[txOutIndex].Value),
+		amount: bsvutil.Amount(tx.TxOut[txOutIndex].Value),
 	}
 }
 
@@ -195,13 +195,13 @@ type testGenerator struct {
 	prevCollectedHash chainhash.Hash
 
 	// Common key for any tests which require signed transactions.
-	privKey *bchec.PrivateKey
+	privKey *bsvec.PrivateKey
 }
 
 // makeTestGenerator returns a test generator instance initialized with the
 // genesis block as the tip.
 func makeTestGenerator(params *chaincfg.Params) (testGenerator, error) {
-	privKey, _ := bchec.PrivKeyFromBytes(bchec.S256(), []byte{0x01})
+	privKey, _ := bsvec.PrivKeyFromBytes(bsvec.S256(), []byte{0x01})
 	genesis := params.GenesisBlock
 	genesisHash := genesis.BlockHash()
 	return testGenerator{
@@ -219,7 +219,7 @@ func makeTestGenerator(params *chaincfg.Params) (testGenerator, error) {
 // payToScriptHashScript returns a standard pay-to-script-hash for the provided
 // redeem script.
 func payToScriptHashScript(redeemScript []byte) []byte {
-	redeemScriptHash := bchutil.Hash160(redeemScript)
+	redeemScriptHash := bsvutil.Hash160(redeemScript)
 	script, err := txscript.NewScriptBuilder().
 		AddOp(txscript.OP_HASH160).AddData(redeemScriptHash).
 		AddOp(txscript.OP_EQUAL).Script()
@@ -315,9 +315,9 @@ func calcMerkleRoot(txns []*wire.MsgTx) chainhash.Hash {
 		return chainhash.Hash{}
 	}
 
-	utilTxns := make([]*bchutil.Tx, 0, len(txns))
+	utilTxns := make([]*bsvutil.Tx, 0, len(txns))
 	for _, tx := range txns {
-		utilTxns = append(utilTxns, bchutil.NewTx(tx))
+		utilTxns = append(utilTxns, bsvutil.NewTx(tx))
 	}
 	merkles := blockchain.BuildMerkleTreeStore(utilTxns)
 	return *merkles[len(merkles)-1]
@@ -390,7 +390,7 @@ func solveBlock(header *wire.BlockHeader) bool {
 
 // additionalCoinbase returns a function that itself takes a block and
 // modifies it by adding the provided amount to coinbase subsidy.
-func additionalCoinbase(amount bchutil.Amount) func(*wire.MsgBlock) {
+func additionalCoinbase(amount bsvutil.Amount) func(*wire.MsgBlock) {
 	return func(b *wire.MsgBlock) {
 		// Increase the first proof-of-work coinbase subsidy by the
 		// provided amount.
@@ -403,7 +403,7 @@ func additionalCoinbase(amount bchutil.Amount) func(*wire.MsgBlock) {
 //
 // NOTE: The coinbase value is NOT updated to reflect the additional fee.  Use
 // 'additionalCoinbase' for that purpose.
-func additionalSpendFee(fee bchutil.Amount) func(*wire.MsgBlock) {
+func additionalSpendFee(fee bsvutil.Amount) func(*wire.MsgBlock) {
 	return func(b *wire.MsgBlock) {
 		// Increase the fee of the spending transaction by reducing the
 		// amount paid.
@@ -445,7 +445,7 @@ func additionalTx(tx *wire.MsgTx) func(*wire.MsgBlock) {
 // transaction ends up with a unique hash.  The script is a simple OP_TRUE
 // script which avoids the need to track addresses and signature scripts in the
 // tests.
-func createSpendTx(spend *spendableOut, fee bchutil.Amount) *wire.MsgTx {
+func createSpendTx(spend *spendableOut, fee bsvutil.Amount) *wire.MsgTx {
 	spendTx := wire.NewMsgTx(1)
 	spendTx.AddTxIn(&wire.TxIn{
 		PreviousOutPoint: spend.prevOut,
@@ -464,7 +464,7 @@ func createSpendTx(spend *spendableOut, fee bchutil.Amount) *wire.MsgTx {
 // to ensure the transaction ends up with a unique hash.  The public key script
 // is a simple OP_TRUE script which avoids the need to track addresses and
 // signature scripts in the tests.  The signature script is nil.
-func createSpendTxForTx(tx *wire.MsgTx, fee bchutil.Amount) *wire.MsgTx {
+func createSpendTxForTx(tx *wire.MsgTx, fee bsvutil.Amount) *wire.MsgTx {
 	spend := makeSpendableOutForTx(tx, 0)
 	return createSpendTx(&spend, fee)
 }
@@ -497,7 +497,7 @@ func (g *testGenerator) nextBlock(blockName string, spend *spendableOut, mungers
 	if spend != nil {
 		// Create the transaction with a fee of 1 atom for the
 		// miner and increase the coinbase subsidy accordingly.
-		fee := bchutil.Amount(1)
+		fee := bsvutil.Amount(1)
 		coinbaseTx.TxOut[0].Value += int64(fee)
 
 		// Create a transaction that spends from the provided spendable
@@ -645,10 +645,10 @@ func nonCanonicalVarInt(val uint32) []byte {
 // encoding.
 func encodeNonCanonicalBlock(b *wire.MsgBlock) []byte {
 	var buf bytes.Buffer
-	b.Header.BchEncode(&buf, 0, wire.BaseEncoding)
+	b.Header.BsvEncode(&buf, 0, wire.BaseEncoding)
 	buf.Write(nonCanonicalVarInt(uint32(len(b.Transactions))))
 	for _, tx := range b.Transactions {
-		tx.BchEncode(&buf, 0, wire.BaseEncoding)
+		tx.BsvEncode(&buf, 0, wire.BaseEncoding)
 	}
 	return buf.Bytes()
 }
@@ -1387,7 +1387,7 @@ func Generate(includeLargeReorg bool) (tests [][]TestInstance, err error) {
 			spend := makeSpendableOutForTx(b39.Transactions[i+2], 2)
 			tx := createSpendTx(&spend, lowFee)
 			sig, err := txscript.RawTxInSignature(tx, 0,
-				redeemScript, txscript.SigHashAll, g.privKey, int64(spend.amount.ToUnit(bchutil.AmountSatoshi)))
+				redeemScript, txscript.SigHashAll, g.privKey, int64(spend.amount.ToUnit(bsvutil.AmountSatoshi)))
 			if err != nil {
 				panic(err)
 			}
@@ -1998,7 +1998,7 @@ func Generate(includeLargeReorg bool) (tests [][]TestInstance, err error) {
 		// each contain an OP_RETURN output.
 		//
 		// NOTE: The createSpendTx func adds the OP_RETURN output.
-		zeroFee := bchutil.Amount(0)
+		zeroFee := bsvutil.Amount(0)
 		for i := uint32(0); i < numAdditionalOutputs; i++ {
 			spend := makeSpendableOut(b, 1, i+2)
 			tx := createSpendTx(&spend, zeroFee)
@@ -2242,12 +2242,12 @@ func GenerateWithTxs(chainLength int, txsPerBlock int) (tests [][]TestInstance, 
 	lastUnspentOut := outs[0]
 	sortCTOR := false
 	addAdditionalTxs := func(block *wire.MsgBlock) {
-		// unsortedTxs is a slice of bchutil.Tx's that we will sort later using CTOR.
-		var unsortedTxs []*bchutil.Tx
+		// unsortedTxs is a slice of bsvutil.Tx's that we will sort later using CTOR.
+		var unsortedTxs []*bsvutil.Tx
 
 		// Let's first add any txs (excluding the coinbase) into unsortedTxs
 		for _, tx := range block.Transactions[1:] {
-			unsortedTxs = append(unsortedTxs, bchutil.NewTx(tx))
+			unsortedTxs = append(unsortedTxs, bsvutil.NewTx(tx))
 		}
 		for i := 0; i < txsPerBlock; i++ {
 			tx := createSpendTx(lastUnspentOut, 0)
@@ -2266,7 +2266,7 @@ func GenerateWithTxs(chainLength int, txsPerBlock int) (tests [][]TestInstance, 
 				},
 			}
 			// Append to both the unsorted slice and the block tx slice
-			unsortedTxs = append(unsortedTxs, bchutil.NewTx(tx))
+			unsortedTxs = append(unsortedTxs, bsvutil.NewTx(tx))
 			block.Transactions = append(block.Transactions, tx)
 		}
 		if sortCTOR {

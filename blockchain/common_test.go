@@ -14,13 +14,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gcash/bchd/chaincfg"
-	"github.com/gcash/bchd/chaincfg/chainhash"
-	"github.com/gcash/bchd/database"
-	_ "github.com/gcash/bchd/database/ffldb"
-	"github.com/gcash/bchd/txscript"
-	"github.com/gcash/bchd/wire"
-	"github.com/gcash/bchutil"
+	"github.com/bitcoinsv/bsvd/chaincfg"
+	"github.com/bitcoinsv/bsvd/chaincfg/chainhash"
+	"github.com/bitcoinsv/bsvd/database"
+	_ "github.com/bitcoinsv/bsvd/database/ffldb"
+	"github.com/bitcoinsv/bsvd/txscript"
+	"github.com/bitcoinsv/bsvd/wire"
+	"github.com/bitcoinsv/bsvutil"
 )
 
 const (
@@ -62,8 +62,8 @@ func isSupportedDbType(dbType string) bool {
 
 // loadBlocks reads files containing bitcoin block data (gzipped but otherwise
 // in the format bitcoind writes) from disk and returns them as an array of
-// bchutil.Block.  This is largely borrowed from the test code in bchdb.
-func loadBlocks(filename string) (blocks []*bchutil.Block, err error) {
+// bsvutil.Block.  This is largely borrowed from the test code in bsvdb.
+func loadBlocks(filename string) (blocks []*bsvutil.Block, err error) {
 	filename = filepath.Join("testdata/", filename)
 
 	var network = blockDataNet
@@ -82,7 +82,7 @@ func loadBlocks(filename string) (blocks []*bchutil.Block, err error) {
 	}
 	defer fi.Close()
 
-	var block *bchutil.Block
+	var block *bsvutil.Block
 
 	err = nil
 	for height := int64(1); err == nil; height++ {
@@ -106,7 +106,7 @@ func loadBlocks(filename string) (blocks []*bchutil.Block, err error) {
 		// read block
 		dr.Read(rbytes)
 
-		block, err = bchutil.NewBlockFromBytes(rbytes)
+		block, err = bsvutil.NewBlockFromBytes(rbytes)
 		if err != nil {
 			return
 		}

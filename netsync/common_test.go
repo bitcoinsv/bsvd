@@ -11,13 +11,13 @@ import (
 	"net"
 	"time"
 
-	"github.com/gcash/bchd/chaincfg"
-	"github.com/gcash/bchd/chaincfg/chainhash"
-	"github.com/gcash/bchd/mempool"
-	"github.com/gcash/bchd/peer"
-	"github.com/gcash/bchd/txscript"
-	"github.com/gcash/bchd/wire"
-	"github.com/gcash/bchutil"
+	"github.com/bitcoinsv/bsvd/chaincfg"
+	"github.com/bitcoinsv/bsvd/chaincfg/chainhash"
+	"github.com/bitcoinsv/bsvd/mempool"
+	"github.com/bitcoinsv/bsvd/peer"
+	"github.com/bitcoinsv/bsvd/txscript"
+	"github.com/bitcoinsv/bsvd/wire"
+	"github.com/bitcoinsv/bsvutil"
 )
 
 // fixedExcessiveBlockSize should not be the default -we want to ensure it will work in all cases
@@ -181,7 +181,7 @@ type relayInventoryCall struct {
 }
 
 type transactionConfirmedCall struct {
-	tx *bchutil.Tx
+	tx *bsvutil.Tx
 }
 
 func (mock *MockPeerNotifier) AnnounceNewTransactions(newTxs []*mempool.TxDesc) {
@@ -205,7 +205,7 @@ func (mock *MockPeerNotifier) RelayInventory(invVect *wire.InvVect, data interfa
 	}
 }
 
-func (mock *MockPeerNotifier) TransactionConfirmed(tx *bchutil.Tx) {
+func (mock *MockPeerNotifier) TransactionConfirmed(tx *bsvutil.Tx) {
 	mock.transactionConfirmedChan <- &transactionConfirmedCall{tx: tx}
 }
 
@@ -223,13 +223,13 @@ func NewMockPeerNotifier() *MockPeerNotifier {
 // GenerateAnyoneCanSpendAddress generates a P2SH address with an OP_TRUE in the
 // redeem script so it can be trivially spent. Returns the scriptSig as well for
 // convenience.
-func GenerateAnyoneCanSpendAddress(chainParams *chaincfg.Params) (bchutil.Address, []byte, error) {
+func GenerateAnyoneCanSpendAddress(chainParams *chaincfg.Params) (bsvutil.Address, []byte, error) {
 	redeemScript := []byte{txscript.OP_TRUE}
 	scriptSig, err := txscript.NewScriptBuilder().AddData(redeemScript).Script()
 	if err != nil {
 		return nil, nil, err
 	}
-	address, err := bchutil.NewAddressScriptHash(redeemScript, chainParams)
+	address, err := bsvutil.NewAddressScriptHash(redeemScript, chainParams)
 	if err != nil {
 		return nil, nil, err
 	}

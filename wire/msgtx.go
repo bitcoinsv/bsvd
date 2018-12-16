@@ -10,7 +10,7 @@ import (
 	"io"
 	"strconv"
 
-	"github.com/gcash/bchd/chaincfg/chainhash"
+	"github.com/bitcoinsv/bsvd/chaincfg/chainhash"
 )
 
 const (
@@ -335,11 +335,11 @@ func (msg *MsgTx) Copy() *MsgTx {
 	return &newTx
 }
 
-// BchDecode decodes r using the bitcoin protocol encoding into the receiver.
+// Bsvdecode decodes r using the bitcoin protocol encoding into the receiver.
 // This is part of the Message interface implementation.
 // See Deserialize for decoding transactions stored to disk, such as in a
 // database, as opposed to decoding transactions from the wire.
-func (msg *MsgTx) BchDecode(r io.Reader, pver uint32, enc MessageEncoding) error {
+func (msg *MsgTx) Bsvdecode(r io.Reader, pver uint32, enc MessageEncoding) error {
 	version, err := binarySerializer.Uint32(r, littleEndian)
 	if err != nil {
 		return err
@@ -357,7 +357,7 @@ func (msg *MsgTx) BchDecode(r io.Reader, pver uint32, enc MessageEncoding) error
 	if count > uint64(maxTxInPerMessage()) {
 		str := fmt.Sprintf("too many input transactions to fit into "+
 			"max message size [count %d, max %d]", count, maxTxInPerMessage())
-		return messageError("MsgTx.BchDecode", str)
+		return messageError("MsgTx.Bsvdecode", str)
 	}
 
 	// returnScriptBuffers is a closure that returns any script buffers that
@@ -413,7 +413,7 @@ func (msg *MsgTx) BchDecode(r io.Reader, pver uint32, enc MessageEncoding) error
 		returnScriptBuffers()
 		str := fmt.Sprintf("too many output transactions to fit into "+
 			"max message size [count %d, max %d]", count, maxTxOutPerMessage())
-		return messageError("MsgTx.BchDecode", str)
+		return messageError("MsgTx.Bsvdecode", str)
 	}
 
 	// Deserialize the outputs.
@@ -492,8 +492,8 @@ func (msg *MsgTx) BchDecode(r io.Reader, pver uint32, enc MessageEncoding) error
 
 // Deserialize decodes a transaction from r into the receiver using a format
 // that is suitable for long-term storage such as a database while respecting
-// the Version field in the transaction.  This function differs from BchDecode
-// in that BchDecode decodes from the bitcoin wire protocol as it was sent
+// the Version field in the transaction.  This function differs from Bsvdecode
+// in that Bsvdecode decodes from the bitcoin wire protocol as it was sent
 // across the network.  The wire encoding can technically differ depending on
 // the protocol version and doesn't even really need to match the format of a
 // stored transaction at all.  As of the time this comment was written, the
@@ -503,15 +503,15 @@ func (msg *MsgTx) BchDecode(r io.Reader, pver uint32, enc MessageEncoding) error
 func (msg *MsgTx) Deserialize(r io.Reader) error {
 	// At the current time, there is no difference between the wire encoding
 	// at protocol version 0 and the stable long-term storage format.  As
-	// a result, make use of BchDecode.
-	return msg.BchDecode(r, 0, BaseEncoding)
+	// a result, make use of Bsvdecode.
+	return msg.Bsvdecode(r, 0, BaseEncoding)
 }
 
-// BchEncode encodes the receiver to w using the bitcoin protocol encoding.
+// BsvEncode encodes the receiver to w using the bitcoin protocol encoding.
 // This is part of the Message interface implementation.
 // See Serialize for encoding transactions to be stored to disk, such as in a
 // database, as opposed to encoding transactions for the wire.
-func (msg *MsgTx) BchEncode(w io.Writer, pver uint32, enc MessageEncoding) error {
+func (msg *MsgTx) BsvEncode(w io.Writer, pver uint32, enc MessageEncoding) error {
 	err := binarySerializer.PutUint32(w, littleEndian, uint32(msg.Version))
 	if err != nil {
 		return err
@@ -548,7 +548,7 @@ func (msg *MsgTx) BchEncode(w io.Writer, pver uint32, enc MessageEncoding) error
 
 // Serialize encodes the transaction to w using a format that suitable for
 // long-term storage such as a database while respecting the Version field in
-// the transaction.  This function differs from BchEncode in that BchEncode
+// the transaction.  This function differs from BsvEncode in that BsvEncode
 // encodes the transaction to the bitcoin wire protocol in order to be sent
 // across the network.  The wire encoding can technically differ depending on
 // the protocol version and doesn't even really need to match the format of a
@@ -559,8 +559,8 @@ func (msg *MsgTx) BchEncode(w io.Writer, pver uint32, enc MessageEncoding) error
 func (msg *MsgTx) Serialize(w io.Writer) error {
 	// At the current time, there is no difference between the wire encoding
 	// at protocol version 0 and the stable long-term storage format.  As
-	// a result, make use of BchEncode.
-	return msg.BchEncode(w, 0, BaseEncoding)
+	// a result, make use of BsvEncode.
+	return msg.BsvEncode(w, 0, BaseEncoding)
 }
 
 // baseSize returns the serialized size of the transaction without accounting

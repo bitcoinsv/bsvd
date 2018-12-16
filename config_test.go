@@ -15,7 +15,7 @@ var (
 
 func TestExcessiveBlockSizeUserAgentComment(t *testing.T) {
 	// Wipe test args.
-	os.Args = []string{"bchd"}
+	os.Args = []string{"bsvd"}
 
 	cfg, _, err := loadConfig()
 	if err != nil {
@@ -33,7 +33,7 @@ func TestExcessiveBlockSizeUserAgentComment(t *testing.T) {
 	}
 
 	// Custom excessive block size.
-	os.Args = []string{"bchd", "--excessiveblocksize=64000000"}
+	os.Args = []string{"bsvd", "--excessiveblocksize=64000000"}
 
 	cfg, _, err = loadConfig()
 	if err != nil {
@@ -53,7 +53,7 @@ func TestExcessiveBlockSizeUserAgentComment(t *testing.T) {
 
 func TestCreateDefaultConfigFile(t *testing.T) {
 	// Setup a temporary directory
-	tmpDir, err := ioutil.TempDir("", "bchd")
+	tmpDir, err := ioutil.TempDir("", "bsvd")
 	if err != nil {
 		t.Fatalf("Failed creating a temporary directory: %v", err)
 	}

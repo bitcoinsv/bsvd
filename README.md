@@ -1,19 +1,19 @@
-bchd
+bsvd
 ====
-[![Build Status](https://travis-ci.org/gcash/bchd.png?branch=master)](https://travis-ci.org/gcash/bchd)
-[![Go Report Card](https://goreportcard.com/badge/github.com/gcash/bchd)](https://goreportcard.com/report/github.com/gcash/bchd)
+[![Build Status](https://travis-ci.org/bitcoinsv/bsvd.png?branch=master)](https://travis-ci.org/bitcoinsv/bsvd)
+[![Go Report Card](https://goreportcard.com/badge/github.com/bitcoinsv/bsvd)](https://goreportcard.com/report/github.com/bitcoinsv/bsvd)
 [![ISC License](http://img.shields.io/badge/license-ISC-blue.svg)](http://copyfree.org)
-[![GoDoc](https://img.shields.io/badge/godoc-reference-blue.svg)](http://godoc.org/github.com/gcash/bchd)
+[![GoDoc](https://img.shields.io/badge/godoc-reference-blue.svg)](http://godoc.org/github.com/bitcoinsv/bsvd)
 
-bchd is an alternative full node bitcoin cash implementation written in Go (golang).
+bsvd is a full node Bitcoin (BSV) implementation written in Go (golang).
 
-This project is a port of the [btcd](https://github.com/btcsuite/btcd) codebase to Bitcoin Cash. It provides a high powered
+This project is a port of the [bchd](https://github.com/gcash/bchd) codebase to Bitcoin (BSV). It provides a high powered
 and reliable blockchain server which makes it a suitable backend to serve blockchain data to lite clients and block explorers
 or to power your local wallet.
 
-bchd does not include any wallet functionality by design as it makes the codebase more modular and easy to maintain. 
-The [bchwallet](https://github.com/gcash/bchwallet) is a separate application that provides a secure Bitcoin Cash wallet 
-that communicates with your running bchd instance via the API.
+bsvd does not include any wallet functionality by design as it makes the codebase more modular and easy to maintain. 
+The [bsvwallet](https://github.com/bitcoinsv/bsvwallet) is a separate application that provides a secure Bitcoin (BSV) wallet 
+that communicates with your running bsvd instance via the API.
 
 ## Table of Contents
 
@@ -34,7 +34,7 @@ that communicates with your running bchd instance via the API.
 
 ### Install Pre-built Packages
 
-The easiest way to run the server is to download a pre-built binary. You can find binaries of our latest release for each operating system at the [releases page](https://github.com/gcash/bchd/releases).
+The easiest way to run the server is to download a pre-built binary. You can find binaries of our latest release for each operating system at the [releases page](https://github.com/bitcoinsv/bsvd/releases).
 
 ### Build from Source
 
@@ -46,60 +46,60 @@ If you prefer to install from source do the following:
 - Run the following commands to obtain btcd, all dependencies, and install it:
 
 ```bash
-$ go get github.com/gcash/bchd
+$ go get github.com/bitcoinsv/bsvd
 ```
 
-This will download and compile `bchd` and put it in your path.
+This will download and compile `bsvd` and put it in your path.
 
-If you are a bchd contributor and would like to change the default config file (`bchd.conf`), make any changes to `sample-bchd.conf` and then run the following commands:
+If you are a bsvd contributor and would like to change the default config file (`bsvd.conf`), make any changes to `sample-bsvd.conf` and then run the following commands:
 
 ```bash
-$ go-bindata sample-bchd.conf  # requires github.com/go-bindata/go-bindata/
+$ go-bindata sample-bsvd.conf  # requires github.com/go-bindata/go-bindata/
 $ gofmt -s -w bindata.go
 ```
 
 ## Getting Started
 
-To start bchd with default options just run:
+To start bsvd with default options just run:
 
 ```bash
-$ ./bchd
+$ ./bsvd
 ```
 
 You'll find a large number of runtime options on the help menu. All of which can also be set in a config file.
-See the [sample config file](https://github.com/gcash/bchd/blob/master/sample-bchd.conf) for an example of how to use it.
+See the [sample config file](https://github.com/bitcoinsv/bsvd/blob/master/sample-bsvd.conf) for an example of how to use it.
 
 ## Docker
 
-Building and running `bchd` in docker is quite painless. To build the image:
+Building and running `bsvd` in docker is quite painless. To build the image:
 
 ```
-docker build . -t bchd
+docker build . -t bsvd
 ```
 
 To run the image:
 
 ```
-docker run bchd
+docker run bsvd
 ```
 
-To run `bchctl` and connect to your `bchd` instance:
+To run `bsvctl` and connect to your `bsvd` instance:
 
 ```
-# Find the running bchd container.
+# Find the running bsvd container.
 docker ps
 
-# Exec bchctl.
-docker exec <container> bchctl <command>
+# Exec bsvctl.
+docker exec <container> bsvctl <command>
 ```
 
 ## Documentation
 
-The documentation is a work-in-progress.  It is located in the [docs](https://github.com/gcash/bchd/tree/master/docs) folder.
+The documentation is a work-in-progress.  It is located in the [docs](https://github.com/bitcoinsv/bsvd/tree/master/docs) folder.
 
 ## Contributing
 
-Contributions are definitely welcome! Please read the contributing [guidelines](https://github.com/gcash/bchd/blob/master/docs/code_contribution_guidelines.md) before starting.
+Contributions are definitely welcome! Please read the contributing [guidelines](https://github.com/bitcoinsv/bsvd/blob/master/docs/code_contribution_guidelines.md) before starting.
 
 ## Security Disclosures
 
@@ -113,4 +113,4 @@ Josh Ellithorpe (quest@mac.com) - GPG Fingerprint: B6DE 3514 E07E 30BB 5F40  8D7
 
 ## License
 
-bchd is licensed under the [copyfree](http://copyfree.org) ISC License.
+bsvd is licensed under the [copyfree](http://copyfree.org) ISC License.

@@ -1,9 +1,9 @@
 txscript
 ========
 
-[![Build Status](https://travis-ci.org/gcash/bchd.png?branch=master)](https://travis-ci.org/gcash/bchd)
+[![Build Status](https://travis-ci.org/bitcoinsv/bsvd.png?branch=master)](https://travis-ci.org/bitcoinsv/bsvd)
 [![ISC License](http://img.shields.io/badge/license-ISC-blue.svg)](http://copyfree.org)
-[![GoDoc](https://godoc.org/github.com/gcash/bchd/txscript?status.png)](http://godoc.org/github.com/gcash/bchd/txscript)
+[![GoDoc](https://godoc.org/github.com/bitcoinsv/bsvd/txscript?status.png)](http://godoc.org/github.com/bitcoinsv/bsvd/txscript)
 
 Package txscript implements the bitcoin transaction script language.  There is
 a comprehensive test suite.
@@ -21,20 +21,20 @@ can be found at https://en.bitcoin.it/wiki/Script
 ## Installation and Updating
 
 ```bash
-$ go get -u github.com/gcash/bchd/txscript
+$ go get -u github.com/bitcoinsv/bsvd/txscript
 ```
 
 ## Examples
 
-* [Standard Pay-to-pubkey-hash Script](http://godoc.org/github.com/gcash/bchd/txscript#example-PayToAddrScript)  
+* [Standard Pay-to-pubkey-hash Script](http://godoc.org/github.com/bitcoinsv/bsvd/txscript#example-PayToAddrScript)  
   Demonstrates creating a script which pays to a bitcoin cash address.  It also
   prints the created script hex and uses the DisasmString function to display
   the disassembled script.
 
-* [Extracting Details from Standard Scripts](http://godoc.org/github.com/gcash/bchd/txscript#example-ExtractPkScriptAddrs)  
+* [Extracting Details from Standard Scripts](http://godoc.org/github.com/bitcoinsv/bsvd/txscript#example-ExtractPkScriptAddrs)  
   Demonstrates extracting information from a standard public key script.
 
-* [Manually Signing a Transaction Output](http://godoc.org/github.com/gcash/bchd/txscript#example-SignTxOutput)  
+* [Manually Signing a Transaction Output](http://godoc.org/github.com/bitcoinsv/bsvd/txscript#example-SignTxOutput)  
   Demonstrates manually creating and signing a redeem transaction.
 
 ## License

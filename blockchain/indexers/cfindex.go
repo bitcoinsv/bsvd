@@ -7,14 +7,14 @@ package indexers
 import (
 	"errors"
 
-	"github.com/gcash/bchd/blockchain"
-	"github.com/gcash/bchd/chaincfg"
-	"github.com/gcash/bchd/chaincfg/chainhash"
-	"github.com/gcash/bchd/database"
-	"github.com/gcash/bchd/wire"
-	"github.com/gcash/bchutil"
-	"github.com/gcash/bchutil/gcs"
-	"github.com/gcash/bchutil/gcs/builder"
+	"github.com/bitcoinsv/bsvd/blockchain"
+	"github.com/bitcoinsv/bsvd/chaincfg"
+	"github.com/bitcoinsv/bsvd/chaincfg/chainhash"
+	"github.com/bitcoinsv/bsvd/database"
+	"github.com/bitcoinsv/bsvd/wire"
+	"github.com/bitcoinsv/bsvutil"
+	"github.com/bitcoinsv/bsvutil/gcs"
+	"github.com/bitcoinsv/bsvutil/gcs/builder"
 )
 
 const (
@@ -149,7 +149,7 @@ func (idx *CfIndex) Create(dbTx database.Tx) error {
 
 // storeFilter stores a given filter, and performs the steps needed to
 // generate the filter's header.
-func storeFilter(dbTx database.Tx, block *bchutil.Block, f *gcs.Filter,
+func storeFilter(dbTx database.Tx, block *bsvutil.Block, f *gcs.Filter,
 	filterType wire.FilterType) error {
 	if uint8(filterType) > maxFilterType {
 		return errors.New("unsupported filter type")
@@ -209,7 +209,7 @@ func storeFilter(dbTx database.Tx, block *bchutil.Block, f *gcs.Filter,
 // ConnectBlock is invoked by the index manager when a new block has been
 // connected to the main chain. This indexer adds a hash-to-cf mapping for
 // every passed block. This is part of the Indexer interface.
-func (idx *CfIndex) ConnectBlock(dbTx database.Tx, block *bchutil.Block,
+func (idx *CfIndex) ConnectBlock(dbTx database.Tx, block *bsvutil.Block,
 	stxos []blockchain.SpentTxOut) error {
 
 	prevScripts := make([][]byte, len(stxos))
@@ -228,7 +228,7 @@ func (idx *CfIndex) ConnectBlock(dbTx database.Tx, block *bchutil.Block,
 // DisconnectBlock is invoked by the index manager when a block has been
 // disconnected from the main chain.  This indexer removes the hash-to-cf
 // mapping for every passed block. This is part of the Indexer interface.
-func (idx *CfIndex) DisconnectBlock(dbTx database.Tx, block *bchutil.Block,
+func (idx *CfIndex) DisconnectBlock(dbTx database.Tx, block *bsvutil.Block,
 	_ []blockchain.SpentTxOut) error {
 
 	for _, key := range cfIndexKeys {

@@ -10,8 +10,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/gcash/bchlog"
-	"github.com/gcash/bchutil"
+	"github.com/bitcoinsv/bsvlog"
+	"github.com/bitcoinsv/bsvutil"
 )
 
 // blockProgressLogger provides periodic logging for other services in order
@@ -22,7 +22,7 @@ type blockProgressLogger struct {
 	receivedLogTx     int64
 	lastBlockLogTime  time.Time
 
-	subsystemLogger bchlog.Logger
+	subsystemLogger bsvlog.Logger
 	progressAction  string
 	sync.Mutex
 }
@@ -31,7 +31,7 @@ type blockProgressLogger struct {
 // The progress message is templated as follows:
 //  {progressAction} {numProcessed} {blocks|block} in the last {timePeriod}
 //  ({numTxs}, height {lastBlockHeight}, {lastBlockTimeStamp})
-func newBlockProgressLogger(progressMessage string, logger bchlog.Logger) *blockProgressLogger {
+func newBlockProgressLogger(progressMessage string, logger bsvlog.Logger) *blockProgressLogger {
 	return &blockProgressLogger{
 		lastBlockLogTime: time.Now(),
 		progressAction:   progressMessage,
@@ -42,7 +42,7 @@ func newBlockProgressLogger(progressMessage string, logger bchlog.Logger) *block
 // LogBlockHeight logs a new block height as an information message to show
 // progress to the user. In order to prevent spam, it limits logging to one
 // message every 10 seconds with duration and totals included.
-func (b *blockProgressLogger) LogBlockHeight(block *bchutil.Block, bestHeight uint64) {
+func (b *blockProgressLogger) LogBlockHeight(block *bsvutil.Block, bestHeight uint64) {
 	b.Lock()
 	defer b.Unlock()
 

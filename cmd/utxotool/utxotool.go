@@ -10,21 +10,21 @@ import (
 	"path/filepath"
 	"runtime"
 
-	"github.com/gcash/bchd/blockchain"
-	"github.com/gcash/bchd/blockchain/indexers"
-	"github.com/gcash/bchd/database"
-	"github.com/gcash/bchd/limits"
-	"github.com/gcash/bchlog"
+	"github.com/bitcoinsv/bsvd/blockchain"
+	"github.com/bitcoinsv/bsvd/blockchain/indexers"
+	"github.com/bitcoinsv/bsvd/database"
+	"github.com/bitcoinsv/bsvd/limits"
+	"github.com/bitcoinsv/bsvlog"
 )
 
 const (
-	// blockDbNamePrefix is the prefix for the bchd block database.
+	// blockDbNamePrefix is the prefix for the bsvd block database.
 	blockDbNamePrefix = "blocks"
 )
 
 var (
 	cfg *config
-	log bchlog.Logger
+	log bsvlog.Logger
 )
 
 // loadBlockDB opens the block database and returns a handle to it.
@@ -70,7 +70,7 @@ func realMain() error {
 	cfg = tcfg
 
 	// Setup logging.
-	backendLogger := bchlog.NewBackend(os.Stdout)
+	backendLogger := bsvlog.NewBackend(os.Stdout)
 	defer os.Stdout.Sync()
 	log = backendLogger.Logger("MAIN")
 	database.UseLogger(backendLogger.Logger("BCDB"))

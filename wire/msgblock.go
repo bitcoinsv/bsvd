@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/gcash/bchd/chaincfg/chainhash"
+	"github.com/bitcoinsv/bsvd/chaincfg/chainhash"
 )
 
 // defaultTransactionAlloc is the default size used for the backing array
@@ -60,11 +60,11 @@ func (msg *MsgBlock) ClearTransactions() {
 	msg.Transactions = make([]*MsgTx, 0, defaultTransactionAlloc)
 }
 
-// BchDecode decodes r using the bitcoin protocol encoding into the receiver.
+// Bsvdecode decodes r using the bitcoin protocol encoding into the receiver.
 // This is part of the Message interface implementation.
 // See Deserialize for decoding blocks stored to disk, such as in a database, as
 // opposed to decoding blocks from the wire.
-func (msg *MsgBlock) BchDecode(r io.Reader, pver uint32, enc MessageEncoding) error {
+func (msg *MsgBlock) Bsvdecode(r io.Reader, pver uint32, enc MessageEncoding) error {
 	err := readBlockHeader(r, pver, &msg.Header)
 	if err != nil {
 		return err
@@ -81,13 +81,13 @@ func (msg *MsgBlock) BchDecode(r io.Reader, pver uint32, enc MessageEncoding) er
 	if txCount > uint64(maxTxPerBlock()) {
 		str := fmt.Sprintf("too many transactions to fit into a block "+
 			"[count %d, max %d]", txCount, maxTxPerBlock())
-		return messageError("MsgBlock.BchDecode", str)
+		return messageError("MsgBlock.Bsvdecode", str)
 	}
 
 	msg.Transactions = make([]*MsgTx, 0, txCount)
 	for i := uint64(0); i < txCount; i++ {
 		tx := MsgTx{}
-		err := tx.BchDecode(r, pver, enc)
+		err := tx.Bsvdecode(r, pver, enc)
 		if err != nil {
 			return err
 		}
@@ -99,8 +99,8 @@ func (msg *MsgBlock) BchDecode(r io.Reader, pver uint32, enc MessageEncoding) er
 
 // Deserialize decodes a block from r into the receiver using a format that is
 // suitable for long-term storage such as a database while respecting the
-// Version field in the block.  This function differs from BchDecode in that
-// BchDecode decodes from the bitcoin wire protocol as it was sent across the
+// Version field in the block.  This function differs from Bsvdecode in that
+// Bsvdecode decodes from the bitcoin wire protocol as it was sent across the
 // network.  The wire encoding can technically differ depending on the protocol
 // version and doesn't even really need to match the format of a stored block at
 // all.  As of the time this comment was written, the encoded block is the same
@@ -109,8 +109,8 @@ func (msg *MsgBlock) BchDecode(r io.Reader, pver uint32, enc MessageEncoding) er
 func (msg *MsgBlock) Deserialize(r io.Reader) error {
 	// At the current time, there is no difference between the wire encoding
 	// at protocol version 0 and the stable long-term storage format.  As
-	// a result, make use of BchDecode.
-	return msg.BchDecode(r, 0, BaseEncoding)
+	// a result, make use of Bsvdecode.
+	return msg.Bsvdecode(r, 0, BaseEncoding)
 }
 
 // DeserializeTxLoc decodes r in the same manner Deserialize does, but it takes
@@ -160,11 +160,11 @@ func (msg *MsgBlock) DeserializeTxLoc(r *bytes.Buffer) ([]TxLoc, error) {
 	return txLocs, nil
 }
 
-// BchEncode encodes the receiver to w using the bitcoin protocol encoding.
+// BsvEncode encodes the receiver to w using the bitcoin protocol encoding.
 // This is part of the Message interface implementation.
 // See Serialize for encoding blocks to be stored to disk, such as in a
 // database, as opposed to encoding blocks for the wire.
-func (msg *MsgBlock) BchEncode(w io.Writer, pver uint32, enc MessageEncoding) error {
+func (msg *MsgBlock) BsvEncode(w io.Writer, pver uint32, enc MessageEncoding) error {
 	err := writeBlockHeader(w, pver, &msg.Header)
 	if err != nil {
 		return err
@@ -176,7 +176,7 @@ func (msg *MsgBlock) BchEncode(w io.Writer, pver uint32, enc MessageEncoding) er
 	}
 
 	for _, tx := range msg.Transactions {
-		err = tx.BchEncode(w, pver, enc)
+		err = tx.BsvEncode(w, pver, enc)
 		if err != nil {
 			return err
 		}
@@ -187,7 +187,7 @@ func (msg *MsgBlock) BchEncode(w io.Writer, pver uint32, enc MessageEncoding) er
 
 // Serialize encodes the block to w using a format that suitable for long-term
 // storage such as a database while respecting the Version field in the block.
-// This function differs from BchEncode in that BchEncode encodes the block to
+// This function differs from BsvEncode in that BsvEncode encodes the block to
 // the bitcoin wire protocol in order to be sent across the network.  The wire
 // encoding can technically differ depending on the protocol version and doesn't
 // even really need to match the format of a stored block at all.  As of the
@@ -197,8 +197,8 @@ func (msg *MsgBlock) BchEncode(w io.Writer, pver uint32, enc MessageEncoding) er
 func (msg *MsgBlock) Serialize(w io.Writer) error {
 	// At the current time, there is no difference between the wire encoding
 	// at protocol version 0 and the stable long-term storage format.  As
-	// a result, make use of BchEncode.
-	return msg.BchEncode(w, 0, BaseEncoding)
+	// a result, make use of BsvEncode.
+	return msg.BsvEncode(w, 0, BaseEncoding)
 }
 
 // SerializeSize returns the number of bytes it would take to serialize the

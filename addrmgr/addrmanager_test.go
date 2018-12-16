@@ -12,8 +12,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gcash/bchd/addrmgr"
-	"github.com/gcash/bchd/wire"
+	"github.com/bitcoinsv/bsvd/addrmgr"
+	"github.com/bitcoinsv/bsvd/wire"
 )
 
 // naTest is used to describe a test to be performed against the NetAddressKey

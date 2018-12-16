@@ -2,8 +2,8 @@
 *~
 
 # Binaries
-bchd
-bchctl
+bsvd
+bsvctl
 
 # Databases
 btcd.db

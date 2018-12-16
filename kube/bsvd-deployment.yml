@@ -1,0 +1,46 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  namespace: default
+  labels:
+    service: bsvd
+    version: 0.12.0-beta2
+  name: bsvd
+spec:
+  strategy:
+    type: Recreate
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        service: bsvd
+    spec:
+      containers:
+      - env:
+        - name: BSVD_RPC_USER
+          valueFrom:
+            secretKeyRef:
+              name: bsvd
+              key: rpcuser
+        - name: BSVD_RPC_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: bsvd
+              key: rpcpass
+        image: zquestz/bsvd:latest
+        command: ["bsvd"]
+        args: ["-u", "$(BSVD_RPC_USER)", "-P", "$(BSVD_RPC_PASSWORD)", "--addrindex", "--txindex", "-b", "/data", "-C", "/data/bsvd.conf"]
+        name: bsvd
+        volumeMounts:
+          - mountPath: /data
+            name: bsvd-data
+        resources:
+          requests:
+            memory: "3Gi"
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 600
+      volumes:
+        - name: bsvd-data
+          gcePersistentDisk:
+            pdName: bsvd-data
+            fsType: ext4

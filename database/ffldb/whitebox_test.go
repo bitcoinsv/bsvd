@@ -19,10 +19,10 @@ import (
 
 	"github.com/btcsuite/goleveldb/leveldb"
 	ldberrors "github.com/btcsuite/goleveldb/leveldb/errors"
-	"github.com/gcash/bchd/chaincfg"
-	"github.com/gcash/bchd/database"
-	"github.com/gcash/bchd/wire"
-	"github.com/gcash/bchutil"
+	"github.com/bitcoinsv/bsvd/chaincfg"
+	"github.com/bitcoinsv/bsvd/database"
+	"github.com/bitcoinsv/bsvd/wire"
+	"github.com/bitcoinsv/bsvutil"
 )
 
 // fixedExcessiveBlockSize should not be the default -we want to ensure it will work in all cases
@@ -35,7 +35,7 @@ func init() {
 var (
 	// blockDataNet is the expected network in the test block data.
 	// The serialized test data uses the Bitcoin Core network magic.
-	// Eventually we should create new testdata using the Bitcoin Cash
+	// Eventually we should create new testdata using the Bitcoin (BSV)
 	// magic.
 	blockDataNet wire.BitcoinNet = 0xd9b4bef9
 
@@ -49,7 +49,7 @@ var (
 
 // loadBlocks loads the blocks contained in the testdata directory and returns
 // a slice of them.
-func loadBlocks(t *testing.T, dataFile string, network wire.BitcoinNet) ([]*bchutil.Block, error) {
+func loadBlocks(t *testing.T, dataFile string, network wire.BitcoinNet) ([]*bsvutil.Block, error) {
 	// Open the file that contains the blocks for reading.
 	fi, err := os.Open(dataFile)
 	if err != nil {
@@ -65,8 +65,8 @@ func loadBlocks(t *testing.T, dataFile string, network wire.BitcoinNet) ([]*bchu
 	dr := bzip2.NewReader(fi)
 
 	// Set the first block as the genesis block.
-	blocks := make([]*bchutil.Block, 0, 256)
-	genesis := bchutil.NewBlock(chaincfg.MainNetParams.GenesisBlock)
+	blocks := make([]*bsvutil.Block, 0, 256)
+	genesis := bsvutil.NewBlock(chaincfg.MainNetParams.GenesisBlock)
 	blocks = append(blocks, genesis)
 
 	// Load the remaining blocks.
@@ -105,7 +105,7 @@ func loadBlocks(t *testing.T, dataFile string, network wire.BitcoinNet) ([]*bchu
 		}
 
 		// Deserialize and store the block.
-		block, err := bchutil.NewBlockFromBytes(blockBytes)
+		block, err := bsvutil.NewBlockFromBytes(blockBytes)
 		if err != nil {
 			t.Errorf("Failed to parse block %v: %v", height, err)
 			return nil, err
@@ -142,7 +142,7 @@ type testContext struct {
 	db           database.DB
 	files        map[uint32]*lockableFile
 	maxFileSizes map[uint32]int64
-	blocks       []*bchutil.Block
+	blocks       []*bsvutil.Block
 }
 
 // TestConvertErr ensures the leveldb error to database error conversion works

@@ -32,9 +32,9 @@ func (msg *MsgNotFound) AddInvVect(iv *InvVect) error {
 	return nil
 }
 
-// BchDecode decodes r using the bitcoin protocol encoding into the receiver.
+// Bsvdecode decodes r using the bitcoin protocol encoding into the receiver.
 // This is part of the Message interface implementation.
-func (msg *MsgNotFound) BchDecode(r io.Reader, pver uint32, enc MessageEncoding) error {
+func (msg *MsgNotFound) Bsvdecode(r io.Reader, pver uint32, enc MessageEncoding) error {
 	count, err := ReadVarInt(r, pver)
 	if err != nil {
 		return err
@@ -43,7 +43,7 @@ func (msg *MsgNotFound) BchDecode(r io.Reader, pver uint32, enc MessageEncoding)
 	// Limit to max inventory vectors per message.
 	if count > MaxInvPerMsg {
 		str := fmt.Sprintf("too many invvect in message [%v]", count)
-		return messageError("MsgNotFound.BchDecode", str)
+		return messageError("MsgNotFound.Bsvdecode", str)
 	}
 
 	// Create a contiguous slice of inventory vectors to deserialize into in
@@ -62,14 +62,14 @@ func (msg *MsgNotFound) BchDecode(r io.Reader, pver uint32, enc MessageEncoding)
 	return nil
 }
 
-// BchEncode encodes the receiver to w using the bitcoin protocol encoding.
+// BsvEncode encodes the receiver to w using the bitcoin protocol encoding.
 // This is part of the Message interface implementation.
-func (msg *MsgNotFound) BchEncode(w io.Writer, pver uint32, enc MessageEncoding) error {
+func (msg *MsgNotFound) BsvEncode(w io.Writer, pver uint32, enc MessageEncoding) error {
 	// Limit to max inventory vectors per message.
 	count := len(msg.InvList)
 	if count > MaxInvPerMsg {
 		str := fmt.Sprintf("too many invvect in message [%v]", count)
-		return messageError("MsgNotFound.BchEncode", str)
+		return messageError("MsgNotFound.BsvEncode", str)
 	}
 
 	err := WriteVarInt(w, pver, uint64(count))

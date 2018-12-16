@@ -1,12 +1,12 @@
-# bchd Kubernetes Configs
+# bsvd Kubernetes Configs
 
-The following guide will walk you through creating a bchd full node within GKE (Google Container Engine).
+The following guide will walk you through creating a bsvd full node within GKE (Google Container Engine).
 
-This node will have both transaction and address indexing turned on. If you don't need these features you can edit `kube/bchd-deployment` and update the flags passed to bchd.
+This node will have both transaction and address indexing turned on. If you don't need these features you can edit `kube/bsvd-deployment` and update the flags passed to bsvd.
 
 Steps:
-1. Add a new blank disk on GCE called `bchd-data` that is 300GB. You can always expand it later.
-2. Change the `rpcuser` and `rpcpass` values in `bchd-secrets.yml`. They are base64 encoded. To base64 a string, just run `echo -n SOMESTRING | base64`.
+1. Add a new blank disk on GCE called `bsvd-data` that is 300GB. You can always expand it later.
+2. Change the `rpcuser` and `rpcpass` values in `bsvd-secrets.yml`. They are base64 encoded. To base64 a string, just run `echo -n SOMESTRING | base64`.
 3. Run `kubectl create -f /path/to/kube`
-4. Lookup the `bchd-srv` service in the web-ui to get your public ip.
+4. Lookup the `bsvd-srv` service in the web-ui to get your public ip.
 5. Profit!

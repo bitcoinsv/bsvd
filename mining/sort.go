@@ -1,10 +1,10 @@
 package mining
 
-import "github.com/gcash/bchutil"
+import "github.com/bitcoinsv/bsvutil"
 
 // TxSorter implements sort.Interface to allow a slice of block headers to
 // be sorted by timestamp.
-type TxSorter []*bchutil.Tx
+type TxSorter []*bsvutil.Tx
 
 // Len returns the number of txs in the slice.  It is part of the
 // sort.Interface implementation.

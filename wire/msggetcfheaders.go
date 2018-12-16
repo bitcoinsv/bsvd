@@ -7,7 +7,7 @@ package wire
 import (
 	"io"
 
-	"github.com/gcash/bchd/chaincfg/chainhash"
+	"github.com/bitcoinsv/bsvd/chaincfg/chainhash"
 )
 
 // MsgGetCFHeaders is a message similar to MsgGetHeaders, but for committed
@@ -19,9 +19,9 @@ type MsgGetCFHeaders struct {
 	StopHash    chainhash.Hash
 }
 
-// BchDecode decodes r using the bitcoin protocol encoding into the receiver.
+// Bsvdecode decodes r using the bitcoin protocol encoding into the receiver.
 // This is part of the Message interface implementation.
-func (msg *MsgGetCFHeaders) BchDecode(r io.Reader, pver uint32, _ MessageEncoding) error {
+func (msg *MsgGetCFHeaders) Bsvdecode(r io.Reader, pver uint32, _ MessageEncoding) error {
 	err := readElement(r, &msg.FilterType)
 	if err != nil {
 		return err
@@ -35,9 +35,9 @@ func (msg *MsgGetCFHeaders) BchDecode(r io.Reader, pver uint32, _ MessageEncodin
 	return readElement(r, &msg.StopHash)
 }
 
-// BchEncode encodes the receiver to w using the bitcoin protocol encoding.
+// BsvEncode encodes the receiver to w using the bitcoin protocol encoding.
 // This is part of the Message interface implementation.
-func (msg *MsgGetCFHeaders) BchEncode(w io.Writer, pver uint32, _ MessageEncoding) error {
+func (msg *MsgGetCFHeaders) BsvEncode(w io.Writer, pver uint32, _ MessageEncoding) error {
 	err := writeElement(w, msg.FilterType)
 	if err != nil {
 		return err

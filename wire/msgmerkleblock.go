@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/gcash/bchd/chaincfg/chainhash"
+	"github.com/bitcoinsv/bsvd/chaincfg/chainhash"
 )
 
 // maxFlagsPerMerkleBlock returns the maximum number of flag bytes that could
@@ -42,13 +42,13 @@ func (msg *MsgMerkleBlock) AddTxHash(hash *chainhash.Hash) error {
 	return nil
 }
 
-// BchDecode decodes r using the bitcoin protocol encoding into the receiver.
+// Bsvdecode decodes r using the bitcoin protocol encoding into the receiver.
 // This is part of the Message interface implementation.
-func (msg *MsgMerkleBlock) BchDecode(r io.Reader, pver uint32, enc MessageEncoding) error {
+func (msg *MsgMerkleBlock) Bsvdecode(r io.Reader, pver uint32, enc MessageEncoding) error {
 	if pver < BIP0037Version {
 		str := fmt.Sprintf("merkleblock message invalid for protocol "+
 			"version %d", pver)
-		return messageError("MsgMerkleBlock.BchDecode", str)
+		return messageError("MsgMerkleBlock.Bsvdecode", str)
 	}
 
 	err := readBlockHeader(r, pver, &msg.Header)
@@ -69,7 +69,7 @@ func (msg *MsgMerkleBlock) BchDecode(r io.Reader, pver uint32, enc MessageEncodi
 	if count > uint64(maxTxPerBlock()) {
 		str := fmt.Sprintf("too many transaction hashes for message "+
 			"[count %v, max %v]", count, maxTxPerBlock())
-		return messageError("MsgMerkleBlock.BchDecode", str)
+		return messageError("MsgMerkleBlock.Bsvdecode", str)
 	}
 
 	// Create a contiguous slice of hashes to deserialize into in order to
@@ -90,13 +90,13 @@ func (msg *MsgMerkleBlock) BchDecode(r io.Reader, pver uint32, enc MessageEncodi
 	return err
 }
 
-// BchEncode encodes the receiver to w using the bitcoin protocol encoding.
+// BsvEncode encodes the receiver to w using the bitcoin protocol encoding.
 // This is part of the Message interface implementation.
-func (msg *MsgMerkleBlock) BchEncode(w io.Writer, pver uint32, enc MessageEncoding) error {
+func (msg *MsgMerkleBlock) BsvEncode(w io.Writer, pver uint32, enc MessageEncoding) error {
 	if pver < BIP0037Version {
 		str := fmt.Sprintf("merkleblock message invalid for protocol "+
 			"version %d", pver)
-		return messageError("MsgMerkleBlock.BchEncode", str)
+		return messageError("MsgMerkleBlock.BsvEncode", str)
 	}
 
 	// Read num transaction hashes and limit to max.
@@ -104,13 +104,13 @@ func (msg *MsgMerkleBlock) BchEncode(w io.Writer, pver uint32, enc MessageEncodi
 	if numHashes > int(maxTxPerBlock()) {
 		str := fmt.Sprintf("too many transaction hashes for message "+
 			"[count %v, max %v]", numHashes, maxTxPerBlock())
-		return messageError("MsgMerkleBlock.BchDecode", str)
+		return messageError("MsgMerkleBlock.Bsvdecode", str)
 	}
 	numFlagBytes := len(msg.Flags)
 	if numFlagBytes > int(maxFlagsPerMerkleBlock()) {
 		str := fmt.Sprintf("too many flag bytes for message [count %v, "+
 			"max %v]", numFlagBytes, maxFlagsPerMerkleBlock())
-		return messageError("MsgMerkleBlock.BchDecode", str)
+		return messageError("MsgMerkleBlock.Bsvdecode", str)
 	}
 
 	err := writeBlockHeader(w, pver, &msg.Header)
