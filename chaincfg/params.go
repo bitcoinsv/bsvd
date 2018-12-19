@@ -139,7 +139,6 @@ type Params struct {
 	// became active.
 	UahfForkHeight              int32 // August 1, 2017 hard fork
 	DaaForkHeight               int32 // November 13, 2017 hard fork
-	MagneticAnonomalyForkHeight int32 // November 15, 2018 hardfork
 
 	// Planned hardforks
 	GreatWallActivationTime uint64 // May 15, 2019 hard fork
@@ -232,12 +231,8 @@ var MainNetParams = Params{
 	Net:         wire.MainNet,
 	DefaultPort: "8333",
 	DNSSeeds: []DNSSeed{
-		{"seed.bsvd.cash", true},
-		{"seed.bitcoinabc.org", true},
-		{"seed-abc.bitcoinforks.org", true},
+		{"seed.bitcoinsv.io", true},
 		{"btccash-seeder.bitcoinunlimited.info", true},
-		{"seed.bitprim.org", true},
-		{"seed.deadalnix.me", true},
 	},
 
 	// Chain parameters
@@ -251,7 +246,6 @@ var MainNetParams = Params{
 
 	UahfForkHeight:              478558, // 0000000000000000011865af4122fe3b144e2cbeea86142e8ff2fb4107352d43
 	DaaForkHeight:               504031, // 0000000000000000011ebf65b60d0a3de80b8175be709d653b4c1a1beeb6ab9c
-	MagneticAnonomalyForkHeight: 556766, // 00000000000000000102d94fde9bd0807a2cc7582fe85dd6349b73ce4e8d9322
 
 	CoinbaseMaturity:         100,
 	SubsidyReductionInterval: 210000,
@@ -288,7 +282,6 @@ var MainNetParams = Params{
 		{470000, newHashFromStr("0000000000000000006c539c722e280a0769abd510af0073430159d71e6d7589")},
 		{510000, newHashFromStr("00000000000000000367922b6457e21d591ef86b360d78a598b14c2f1f6b0e04")},
 		{552979, newHashFromStr("0000000000000000015648768ac1b788a83187d706f858919fcc5c096b76fbf2")},
-		{556767, newHashFromStr("0000000000000000004626ff6e3b936941d341c5932ece4357eeccac44e6d56c")},
 	},
 
 	// Consensus rule change deployments.
@@ -351,7 +344,6 @@ var RegressionNetParams = Params{
 
 	UahfForkHeight:              0, // Always active on regtest
 	DaaForkHeight:               0, // Always active on regtest
-	MagneticAnonomalyForkHeight: 1000,
 
 	SubsidyReductionInterval: 150,
 	TargetTimespan:           time.Hour * 24 * 14, // 14 days
@@ -412,11 +404,8 @@ var TestNet3Params = Params{
 	Net:         wire.TestNet3,
 	DefaultPort: "18333",
 	DNSSeeds: []DNSSeed{
-		{"testnet-seed.bitcoinabc.org", true},
-		{"testnet-seed-abc.bitcoinforks.org", true},
-		{"testnet-seed.bitprim.org", true},
-		{"testnet-seed.deadalnix.me", true},
-		{"testnet-seeder.criptolayer.net", true},
+		{"testnet-seed.bitcoinsv.io", true},
+		{"testnet-btccash-seeder.bitcoinunlimited.info", true},
 	},
 
 	// Chain parameters
@@ -430,7 +419,6 @@ var TestNet3Params = Params{
 
 	UahfForkHeight:              1155875, // 00000000f17c850672894b9a75b63a1e72830bbd5f4c8889b5c1a80e7faef138
 	DaaForkHeight:               1188697, // 0000000000170ed0918077bde7b4d36cc4c91be69fa09211f748240dabe047fb
-	MagneticAnonomalyForkHeight: 1267996, // 00000000000001fae0095cd4bea16f1ce8ab63f3f660a03c6d8171485f484b24
 
 	CoinbaseMaturity:         100,
 	SubsidyReductionInterval: 210000,
@@ -519,7 +507,6 @@ var SimNetParams = Params{
 	BIP0066Height:               0, // Always active on simnet
 	UahfForkHeight:              0, // Always active on simnet
 	DaaForkHeight:               2000,
-	MagneticAnonomalyForkHeight: 3000,
 	CoinbaseMaturity:            100,
 	SubsidyReductionInterval:    210000,
 	TargetTimespan:              time.Hour * 24 * 14, // 14 days

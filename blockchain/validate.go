@@ -53,10 +53,6 @@ const (
 	// MaxTransactionSize is the maximum allowable size of a transaction
 	MaxTransactionSize = 1000000
 
-	// MinTransactionSize is the minimum transaction size allowed on the
-	// network after the magneticanomaly hardfork
-	MinTransactionSize = 100
-
 	// MaxTransactionSigOps is the maximum allowable number of sigops per transaction
 	MaxTransactionSigOps = 20000
 )
@@ -242,7 +238,7 @@ func CalcBlockSubsidy(height int32, chainParams *chaincfg.Params) int64 {
 
 // CheckTransactionSanity performs some preliminary checks on a transaction to
 // ensure it is sane.  These checks are context free.
-func CheckTransactionSanity(tx *bsvutil.Tx, magneticAnomalyActive bool, scriptFlags txscript.ScriptFlags) error {
+func CheckTransactionSanity(tx *bsvutil.Tx, scriptFlags txscript.ScriptFlags) error {
 	// A transaction must have at least one input.
 	msgTx := tx.MsgTx()
 	if len(msgTx.TxIn) == 0 {
@@ -261,11 +257,6 @@ func CheckTransactionSanity(tx *bsvutil.Tx, magneticAnomalyActive bool, scriptFl
 		str := fmt.Sprintf("serialized transaction is too big - got "+
 			"%d, max %d", serializedTxSize, MaxTransactionSize)
 		return ruleError(ErrTxTooBig, str)
-	}
-	if magneticAnomalyActive && serializedTxSize < MinTransactionSize {
-		str := fmt.Sprintf("serialized transaction is too small - got "+
-			"%d, min %d", serializedTxSize, MinTransactionSize)
-		return ruleError(ErrTxTooSmall, str)
 	}
 
 	sigOps := CountSigOps(tx, scriptFlags)
@@ -565,28 +556,11 @@ func checkBlockSanity(block *bsvutil.Block, powLimit *big.Int, timeSource Median
 		}
 	}
 
-	magneticAnomaly := flags.HasFlag(BFMagneticAnomaly)
-
-	// TODO: This is not a full set of ScriptFlags and only
-	// covers the Nov 2018 fork.
-	var scriptFlags txscript.ScriptFlags
-	if magneticAnomaly {
-		scriptFlags |= txscript.ScriptVerifySigPushOnly |
-			txscript.ScriptVerifyCleanStack |
-			txscript.ScriptVerifyCheckDataSig
-	}
-
 	// Do some preliminary checks on each transaction to ensure they are
 	// sane before continuing.
-	var lastTxid *chainhash.Hash
-	for i, tx := range transactions {
-		// If MagneticAnomaly is active validate the CTOR consensus rule, skipping
-		// the coinbase transaction.
-		if magneticAnomaly && i > 1 && lastTxid.Compare(tx.Hash()) >= 0 {
-			return ruleError(ErrInvalidTxOrder, "transactions are not in lexicographical order")
-		}
-		lastTxid = tx.Hash()
-		err := CheckTransactionSanity(tx, magneticAnomaly, scriptFlags)
+	for _, tx := range transactions {
+		var flags txscript.ScriptFlags
+		err := CheckTransactionSanity(tx, flags)
 		if err != nil {
 			return err
 		}
@@ -626,13 +600,8 @@ func checkBlockSanity(block *bsvutil.Block, powLimit *big.Int, timeSource Median
 
 // CheckBlockSanity performs some preliminary checks on a block to ensure it is
 // sane before continuing with block processing.  These checks are context free.
-func CheckBlockSanity(block *bsvutil.Block, powLimit *big.Int, timeSource MedianTimeSource, magneticAnomalyActive bool) error {
+func CheckBlockSanity(block *bsvutil.Block, powLimit *big.Int, timeSource MedianTimeSource) error {
 	behaviorFlags := BFNone
-
-	if magneticAnomalyActive {
-		behaviorFlags |= BFMagneticAnomaly
-	}
-
 	return checkBlockSanity(block, powLimit, timeSource, behaviorFlags)
 }
 
@@ -1071,10 +1040,6 @@ func (b *BlockChain) checkConnectBlock(node *blockNode, block *bsvutil.Block, vi
 	// adjustment algorithm and also enforce Low S and Nullfail.
 	daaActive := node.height > b.chainParams.DaaForkHeight
 
-	// If MagneticAnomaly hardfork is enabled we must enforce PushOnly and CleanStack
-	// and enable OP_CHECKDATASIG and OP_CHECKDATASIGVERIFY and CTOR.
-	magneticAnomalyActive := node.height > b.chainParams.MagneticAnonomalyForkHeight
-
 	// BIP0030 added a rule to prevent blocks which contain duplicate
 	// transactions that 'overwrite' older transactions which are not fully
 	// spent.  See the documentation for checkBIP0030 for more details.
@@ -1103,7 +1068,7 @@ func (b *BlockChain) checkConnectBlock(node *blockNode, block *bsvutil.Block, vi
 	//
 	// These utxo entries are needed for verification of things such as
 	// transaction inputs, counting pay-to-script-hashes, and scripts.
-	err := view.addInputUtxos(b.utxoCache, block, magneticAnomalyActive)
+	err := view.addInputUtxos(b.utxoCache, block)
 	if err != nil {
 		return err
 	}
@@ -1143,14 +1108,6 @@ func (b *BlockChain) checkConnectBlock(node *blockNode, block *bsvutil.Block, vi
 	// If Daa is active enforce Low S and Nullfail script validation rules.
 	if daaActive {
 		scriptFlags |= txscript.ScriptVerifyLowS | txscript.ScriptVerifyNullFail
-	}
-
-	// If MagneticAnomaly hardfork is enabled we must enforce PushOnly and CleanStack
-	// and enable OP_CHECKDATASIG and OP_CHECKDATASIGVERIFY
-	if magneticAnomalyActive {
-		scriptFlags |= txscript.ScriptVerifySigPushOnly |
-			txscript.ScriptVerifyCleanStack |
-			txscript.ScriptVerifyCheckDataSig
 	}
 
 	// The number of signature operations must be less than the maximum
@@ -1213,24 +1170,9 @@ func (b *BlockChain) checkConnectBlock(node *blockNode, block *bsvutil.Block, vi
 		// provably unspendable as available utxos.  Also, the passed
 		// spent txos slice is updated to contain an entry for each
 		// spent txout in the order each transaction spends them.
-		//
-		// If magneticAnomaly is not active we connect each transaction
-		// one at a time so that we can validate the topological order
-		// in the process.
-		if !magneticAnomalyActive {
-			err = connectTransaction(view, tx, node.height, stxos, false)
-			if err != nil {
-				return err
-			}
-		}
-	}
-
-	// If magneticAnomaly is active we can use Outputs-then-inputs validation
-	// to validate the utxos.
-	if magneticAnomalyActive {
-		err := connectTransactions(view, block, stxos, false)
+		err = connectTransaction(view, tx, node.height, stxos, false)
 		if err != nil {
-			return nil
+			return err
 		}
 	}
 
@@ -1338,12 +1280,6 @@ func (b *BlockChain) CheckConnectBlockTemplate(block *bsvutil.Block) error {
 		str := fmt.Sprintf("previous block must be the current chain tip %v, "+
 			"instead got %v", tip.hash, header.PrevBlock)
 		return ruleError(ErrPrevBlockNotBest, str)
-	}
-
-	// If MagneticAnomaly is active make sure the block sanity is checked using the
-	// new rule set.
-	if block.Height() > b.chainParams.MagneticAnonomalyForkHeight {
-		flags |= BFMagneticAnomaly
 	}
 
 	err := checkBlockSanity(block, b.chainParams.PowLimit, b.timeSource, flags)

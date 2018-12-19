@@ -131,7 +131,7 @@ func (view *UtxoViewpoint) AddTxOuts(tx *bsvutil.Tx, blockHeight int32) {
 // by the transactions in the given block to the view.  In particular, referenced
 // entries that are earlier in the block are added to the view and entries that
 // are already in the view are not modified.
-func (view *UtxoViewpoint) addInputUtxos(source utxoView, block *bsvutil.Block, ignoreOutOfOrder bool) error {
+func (view *UtxoViewpoint) addInputUtxos(source utxoView, block *bsvutil.Block) error {
 	// Build a map of in-flight transactions because some of the inputs in
 	// this block could be referencing other transactions earlier in this
 	// block which are not yet in the chain.
@@ -146,8 +146,7 @@ func (view *UtxoViewpoint) addInputUtxos(source utxoView, block *bsvutil.Block, 
 	for i, tx := range block.Transactions()[1:] {
 		for _, txIn := range tx.MsgTx().TxIn {
 			originHash := &txIn.PreviousOutPoint.Hash
-			if inFlightIndex, ok := txInFlight[*originHash]; ok &&
-				(i >= inFlightIndex || ignoreOutOfOrder) {
+			if inFlightIndex, ok := txInFlight[*originHash]; ok && i >= inFlightIndex {
 				originTx := transactions[inFlightIndex]
 				view.AddTxOuts(originTx, block.Height())
 				continue
@@ -292,9 +291,7 @@ func connectTransactions(view utxoView, block *bsvutil.Block, stxos *[]SpentTxOu
 // created by the passed block, restoring all utxos the transactions spent by
 // using the provided spent txo information, and setting the best hash for the
 // view to the block before the passed block.
-//
-// This function is safe to use on both TTOR and CTOR blocks. It will not,
-// however, validate any ordering.
+// This function does not validate order
 func disconnectTransactions(view utxoView, block *bsvutil.Block, stxos []SpentTxOut) error {
 	// Sanity check the correct number of stxos are provided.
 	if len(stxos) != countSpentOutputs(block) {

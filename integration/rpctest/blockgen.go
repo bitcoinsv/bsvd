@@ -14,11 +14,9 @@ import (
 	"github.com/bitcoinsv/bsvd/blockchain"
 	"github.com/bitcoinsv/bsvd/chaincfg"
 	"github.com/bitcoinsv/bsvd/chaincfg/chainhash"
-	"github.com/bitcoinsv/bsvd/mining"
 	"github.com/bitcoinsv/bsvd/txscript"
 	"github.com/bitcoinsv/bsvd/wire"
 	"github.com/bitcoinsv/bsvutil"
-	"sort"
 )
 
 // solveBlock attempts to find a nonce which makes the passed block header hash
@@ -182,10 +180,6 @@ func CreateBlock(prevBlock *bsvutil.Block, inclusionTxs []*bsvutil.Tx,
 	var blockTxns []*bsvutil.Tx
 	if inclusionTxs != nil {
 		blockTxns = append(blockTxns, inclusionTxs...)
-	}
-	// If magnetic anomaly is enabled ally CTOR sorting
-	if blockHeight > net.MagneticAnonomalyForkHeight {
-		sort.Sort(mining.TxSorter(blockTxns))
 	}
 	blockTxns = append([]*bsvutil.Tx{coinbaseTx}, blockTxns...)
 	merkles := blockchain.BuildMerkleTreeStore(blockTxns)

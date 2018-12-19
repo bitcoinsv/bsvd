@@ -9,8 +9,6 @@ import (
 	"fmt"
 	"time"
 
-	"sort"
-
 	"github.com/bitcoinsv/bsvd/blockchain"
 	"github.com/bitcoinsv/bsvd/chaincfg"
 	"github.com/bitcoinsv/bsvd/chaincfg/chainhash"
@@ -284,11 +282,7 @@ func createCoinbaseTx(params *chaincfg.Params, coinbaseScript []byte, nextBlockH
 		Value:    blockchain.CalcBlockSubsidy(nextBlockHeight, params),
 		PkScript: pkScript,
 	})
-	// Make sure the coinbase is above the minimum size threshold.
-	if tx.SerializeSize() < blockchain.MinTransactionSize {
-		tx.TxIn[0].SignatureScript = append(tx.TxIn[0].SignatureScript,
-			make([]byte, blockchain.MinTransactionSize-tx.SerializeSize()-1)...)
-	}
+
 	return bsvutil.NewTx(tx), nil
 }
 
@@ -475,15 +469,7 @@ func (g *BlkTmplGenerator) NewBlockTemplate(payToAddress bsvutil.Address) (*Bloc
 		return nil, err
 	}
 
-	// TODO: This set of flags is currently incomplete and
-	// only includes the latest DSV changes.
 	var scriptFlags txscript.ScriptFlags
-
-	if nextBlockHeight > g.chainParams.MagneticAnonomalyForkHeight {
-		scriptFlags |= txscript.ScriptVerifySigPushOnly |
-			txscript.ScriptVerifyCleanStack |
-			txscript.ScriptVerifyCheckDataSig
-	}
 
 	// Enable BIP-16
 	scriptFlags |= txscript.ScriptBip16
@@ -784,11 +770,6 @@ mempoolLoop:
 		return nil, err
 	}
 
-	// If MagneticAnomaly is enabled we need to sort transactions by txid to
-	// comply with the CTOR consensus rule.
-	if nextBlockHeight > g.chainParams.MagneticAnonomalyForkHeight {
-		sort.Sort(TxSorter(blockTxns))
-	}
 	blockTxns = append([]*bsvutil.Tx{coinbaseTx}, blockTxns...)
 
 	// Create a new block ready to be solved.

@@ -658,24 +658,13 @@ func (mp *TxPool) maybeAcceptTransaction(tx *bsvutil.Tx, isNew, rateLimit, rejec
 	bestHeight := mp.cfg.BestHeight()
 	nextBlockHeight := bestHeight + 1
 
-	magneticAnomalyActive := false
-	if nextBlockHeight > mp.cfg.ChainParams.MagneticAnonomalyForkHeight {
-		magneticAnomalyActive = true
-	}
 
-	// Check if MagneticAnomaly is enabled. If so let's admit CheckDataSig transactions
-	// into the mempool.
 	scriptFlags := txscript.StandardVerifyFlags
-	if magneticAnomalyActive {
-		scriptFlags |= txscript.ScriptVerifySigPushOnly |
-			txscript.ScriptVerifyCleanStack |
-			txscript.ScriptVerifyCheckDataSig
-	}
 
 	// Perform preliminary sanity checks on the transaction.  This makes
 	// use of blockchain which contains the invariant rules for what
 	// transactions are allowed into blocks.
-	err := blockchain.CheckTransactionSanity(tx, magneticAnomalyActive, scriptFlags)
+	err := blockchain.CheckTransactionSanity(tx, scriptFlags)
 	if err != nil {
 		if cerr, ok := err.(blockchain.RuleError); ok {
 			return nil, nil, chainRuleError(cerr)

@@ -944,7 +944,7 @@ func (b *BlockChain) reorganizeChain(detachNodes, attachNodes *list.List) error 
 
 		// Load all of the utxos referenced by the block that aren't
 		// already in the view.
-		err = view.addInputUtxos(b.utxoCache, block, true)
+		err = view.addInputUtxos(b.utxoCache, block)
 		if err != nil {
 			return err
 		}
@@ -1011,7 +1011,7 @@ func (b *BlockChain) reorganizeChain(detachNodes, attachNodes *list.List) error 
 		// checkConnectBlock gets skipped, we still need to update the UTXO
 		// view.
 		if b.index.NodeStatus(n).KnownValid() {
-			err = view.addInputUtxos(b.utxoCache, block, true)
+			err = view.addInputUtxos(b.utxoCache, block)
 			if err != nil {
 				return err
 			}
@@ -1062,7 +1062,7 @@ func (b *BlockChain) reorganizeChain(detachNodes, attachNodes *list.List) error 
 
 		// Load all of the utxos referenced by the block that aren't
 		// already in the view.
-		err := view.addInputUtxos(b.utxoCache, block, true)
+		err := view.addInputUtxos(b.utxoCache, block)
 		if err != nil {
 			return err
 		}
@@ -1088,7 +1088,7 @@ func (b *BlockChain) reorganizeChain(detachNodes, attachNodes *list.List) error 
 
 		// Load all of the utxos referenced by the block that aren't
 		// already in the view.
-		err := view.addInputUtxos(b.utxoCache, block, true)
+		err := view.addInputUtxos(b.utxoCache, block)
 		if err != nil {
 			return err
 		}
@@ -1186,7 +1186,7 @@ func (b *BlockChain) connectBestChain(node *blockNode, block *bsvutil.Block, fla
 		// utxos, spend them, and add the new utxos being created by
 		// this block.
 		if fastAdd {
-			err := view.addInputUtxos(b.utxoCache, block, true)
+			err := view.addInputUtxos(b.utxoCache, block)
 			if err != nil {
 				return false, err
 			}
@@ -1772,7 +1772,7 @@ func (b *BlockChain) RollbackUtxoSet(height int32) (*UtxoViewpoint, error) {
 
 		// Load all of the utxos referenced by the block that aren't
 		// already in the view.
-		err = view.addInputUtxos(b.utxoCache, block, true)
+		err = view.addInputUtxos(b.utxoCache, block)
 		if err != nil {
 			return nil, err
 		}
@@ -1885,7 +1885,7 @@ func (b *BlockChain) ReIndexChainState() error {
 		if err != nil {
 			return err
 		}
-		if err = view.addInputUtxos(b.utxoCache, blk, blk.Height() < b.chainParams.MagneticAnonomalyForkHeight); err != nil {
+		if err = view.addInputUtxos(b.utxoCache, blk); err != nil {
 			return err
 		}
 		if err = connectTransactions(view, blk, nil, false); err != nil {

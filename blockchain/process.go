@@ -29,11 +29,6 @@ const (
 	// not be performed.
 	BFNoPoWCheck
 
-	// BFMagneticAnomaly signals that the magnetic anomaly hardfork is
-	// active and the block should be validated according the new rule
-	// set.
-	BFMagneticAnomaly
-
 	// BFNoDupBlockCheck signals if the block should skip existence
 	// checks.
 	BFNoDupBlockCheck
@@ -178,10 +173,6 @@ func (b *BlockChain) ProcessBlock(block *bsvutil.Block, flags BehaviorFlags) (bo
 			str := fmt.Sprintf("already have block (orphan) %v", blockHash)
 			return false, false, ruleError(ErrDuplicateBlock, str)
 		}
-	}
-
-	if block.Height() > b.chainParams.MagneticAnonomalyForkHeight {
-		flags |= BFMagneticAnomaly
 	}
 
 	// Perform preliminary sanity checks on the block and its transactions.
