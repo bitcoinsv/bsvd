@@ -466,8 +466,7 @@ func TestCalcScriptInfo(t *testing.T) {
 
 		var scriptFlags ScriptFlags
 		scriptFlags |= ScriptVerifySigPushOnly |
-			ScriptVerifyCleanStack |
-			ScriptVerifyCheckDataSig
+			ScriptVerifyCleanStack
 
 		if test.bip16 {
 			scriptFlags |= ScriptBip16

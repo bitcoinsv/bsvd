@@ -144,11 +144,6 @@ const (
 	// evaluate to true.
 	ErrCheckMultiSigVerify
 
-	// ErrCheckDataSigVerify is returned when OP_CHECKDATASIGVERIFY is
-	// encountered in a script and the top item on the data stack does not
-	// evaluate to true.
-	ErrCheckDataSigVerify
-
 	// --------------------------------------------
 	// Failures related to improper use of opcodes.
 	// --------------------------------------------
@@ -338,7 +333,6 @@ var errorCodeStrings = map[ErrorCode]string{
 	ErrNumEqualVerify:           "ErrNumEqualVerify",
 	ErrCheckSigVerify:           "ErrCheckSigVerify",
 	ErrCheckMultiSigVerify:      "ErrCheckMultiSigVerify",
-	ErrCheckDataSigVerify:       "ErrCheckDataSigVerify",
 	ErrDisabledOpcode:           "ErrDisabledOpcode",
 	ErrReservedOpcode:           "ErrReservedOpcode",
 	ErrMalformedPush:            "ErrMalformedPush",

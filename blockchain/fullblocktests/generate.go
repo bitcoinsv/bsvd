@@ -674,8 +674,7 @@ func repeatOpcode(opcode uint8, numRepeats int) []byte {
 func assertScriptSigOpsCount(script []byte, expected int) {
 	var scriptFlags txscript.ScriptFlags
 	scriptFlags |= txscript.ScriptVerifySigPushOnly |
-		txscript.ScriptVerifyCleanStack |
-		txscript.ScriptVerifyCheckDataSig
+		txscript.ScriptVerifyCleanStack
 
 	numSigOps := txscript.GetSigOpCount(script, scriptFlags)
 	if numSigOps != expected {
@@ -692,8 +691,7 @@ func countBlockSigOps(block *wire.MsgBlock) int {
 	totalSigOps := 0
 	var scriptFlags txscript.ScriptFlags
 	scriptFlags |= txscript.ScriptVerifySigPushOnly |
-		txscript.ScriptVerifyCleanStack |
-		txscript.ScriptVerifyCheckDataSig
+		txscript.ScriptVerifyCleanStack
 
 	for _, tx := range block.Transactions {
 		for _, txIn := range tx.TxIn {

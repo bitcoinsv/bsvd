@@ -611,12 +611,6 @@ func getSigOpCount(pops []parsedOpcode, precise bool, scriptFlags ScriptFlags) i
 			fallthrough
 		case OP_CHECKSIGVERIFY:
 			nSigs++
-		case OP_CHECKDATASIG:
-			fallthrough
-		case OP_CHECKDATASIGVERIFY:
-			if scriptFlags.HasFlag(ScriptVerifyCheckDataSig) {
-				nSigs++
-			}
 		case OP_CHECKMULTISIG:
 			fallthrough
 		case OP_CHECKMULTISIGVERIFY:

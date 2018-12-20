@@ -3459,38 +3459,6 @@ func TestUnparsingInvalidOpcodes(t *testing.T) {
 			expectedErr: scriptError(ErrInternal, ""),
 		},
 		{
-			name: "OP_CHECKDATASIG",
-			pop: &parsedOpcode{
-				opcode: &opcodeArray[OP_CHECKDATASIG],
-				data:   nil,
-			},
-			expectedErr: nil,
-		},
-		{
-			name: "OP_CHECKDATASIG long",
-			pop: &parsedOpcode{
-				opcode: &opcodeArray[OP_CHECKDATASIG],
-				data:   make([]byte, 1),
-			},
-			expectedErr: scriptError(ErrInternal, ""),
-		},
-		{
-			name: "OP_CHECKDATASIGVERIFY",
-			pop: &parsedOpcode{
-				opcode: &opcodeArray[OP_CHECKDATASIGVERIFY],
-				data:   nil,
-			},
-			expectedErr: nil,
-		},
-		{
-			name: "OP_CHECKDATASIGVERIFY long",
-			pop: &parsedOpcode{
-				opcode: &opcodeArray[OP_CHECKDATASIGVERIFY],
-				data:   make([]byte, 1),
-			},
-			expectedErr: scriptError(ErrInternal, ""),
-		},
-		{
 			name: "OP_NOP1",
 			pop: &parsedOpcode{
 				opcode: &opcodeArray[OP_NOP1],
@@ -3869,8 +3837,7 @@ func TestGetPreciseSigOps(t *testing.T) {
 
 	var scriptFlags ScriptFlags
 	scriptFlags |= ScriptVerifySigPushOnly |
-		ScriptVerifyCleanStack |
-		ScriptVerifyCheckDataSig | ScriptBip16
+		ScriptVerifyCleanStack | ScriptBip16
 
 	for _, test := range tests {
 		count := GetPreciseSigOpCount(test.scriptSig, pkScript, scriptFlags)
@@ -4069,9 +4036,9 @@ func TestRemoveOpcodeByData(t *testing.T) {
 		},
 		{
 			name:   "invalid opcode ",
-			before: []byte{OP_UNKNOWN188},
+			before: []byte{OP_UNKNOWN187},
 			remove: []byte{1, 2, 3, 4},
-			after:  []byte{OP_UNKNOWN188},
+			after:  []byte{OP_UNKNOWN187},
 		},
 		{
 			name:   "invalid length (instruction)",

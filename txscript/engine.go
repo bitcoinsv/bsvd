@@ -79,11 +79,6 @@ const (
 	// ScriptVerifyBip143SigHash defines that signature hashes should
 	// be calculated using the bip0143 signature hashing algorithm.
 	ScriptVerifyBip143SigHash
-
-	// ScriptVerifyCheckDataSig enables verification of the OP_CHECKDATASIG
-	// OP_CHECKDATASIGVERIFY opcodes. Without this flag the opcodes will
-	// behave as if they are disabled.
-	ScriptVerifyCheckDataSig
 )
 
 // HasFlag returns whether the ScriptFlags has the passed flag set.
