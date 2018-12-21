@@ -449,7 +449,7 @@ var opcodeArray = [256]opcode{
 	OP_SIZE:    {OP_SIZE, "OP_SIZE", 1, opcodeSize},
 
 	// Bitwise logic opcodes.
-	OP_INVERT:      {OP_INVERT, "OP_INVERT", 1, opcodeDisabled},
+	OP_INVERT:      {OP_INVERT, "OP_INVERT", 1, opcodeInvert},
 	OP_AND:         {OP_AND, "OP_AND", 1, opcodeAnd},
 	OP_OR:          {OP_OR, "OP_OR", 1, opcodeOr},
 	OP_XOR:         {OP_XOR, "OP_XOR", 1, opcodeXor},
@@ -621,8 +621,6 @@ type parsedOpcode struct {
 // bad to see in the instruction stream (even if turned off by a conditional).
 func (pop *parsedOpcode) isDisabled() bool {
 	switch pop.opcode.value {
-	case OP_INVERT:
-		return true
 	case OP_2MUL:
 		return true
 	case OP_2DIV:
@@ -1536,6 +1534,22 @@ func opcodeSize(op *parsedOpcode, vm *Engine) error {
 	}
 
 	vm.dstack.PushInt(scriptNum(len(so)))
+	return nil
+}
+
+// opcodeInvert flips all of the top stack item's bits
+//
+// Stack transformation: a -> ~a
+func opcodeInvert(op *parsedOpcode, vm *Engine) error {
+	ba, err := vm.dstack.PeekByteArray(0)
+	if err != nil {
+		return err
+	}
+
+	for i := range ba {
+		ba[i] = ba[i] ^ 0xFF
+	}
+
 	return nil
 }
 
