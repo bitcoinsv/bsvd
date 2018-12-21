@@ -469,7 +469,7 @@ var opcodeArray = [256]opcode{
 	OP_0NOTEQUAL:          {OP_0NOTEQUAL, "OP_0NOTEQUAL", 1, opcode0NotEqual},
 	OP_ADD:                {OP_ADD, "OP_ADD", 1, opcodeAdd},
 	OP_SUB:                {OP_SUB, "OP_SUB", 1, opcodeSub},
-	OP_MUL:                {OP_MUL, "OP_MUL", 1, opcodeDisabled},
+	OP_MUL:                {OP_MUL, "OP_MUL", 1, opcodeMul},
 	OP_DIV:                {OP_DIV, "OP_DIV", 1, opcodeDiv},
 	OP_MOD:                {OP_MOD, "OP_MOD", 1, opcodeMod},
 	OP_LSHIFT:             {OP_LSHIFT, "OP_LSHIFT", 1, opcodeDisabled},
@@ -624,8 +624,6 @@ func (pop *parsedOpcode) isDisabled() bool {
 	case OP_2MUL:
 		return true
 	case OP_2DIV:
-		return true
-	case OP_MUL:
 		return true
 	case OP_LSHIFT:
 		return true
@@ -1795,6 +1793,25 @@ func opcodeSub(op *parsedOpcode, vm *Engine) error {
 	}
 
 	vm.dstack.PushInt(v1 - v0)
+	return nil
+}
+
+// opcodeMul treats the top two items on the data stack as integers and replaces
+// them with the result of subtracting the top entry from the second-to-top
+// entry.
+func opcodeMul(op *parsedOpcode, vm *Engine) error {
+	n1, err := vm.dstack.PopInt()
+	if err != nil {
+		return err
+	}
+
+	n2, err := vm.dstack.PopInt()
+	if err != nil {
+		return err
+	}
+
+	n3 := int32(n1.Int32() * n2.Int32())
+	vm.dstack.PushInt(scriptNum(n3))
 	return nil
 }
 
