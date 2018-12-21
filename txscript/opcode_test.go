@@ -18,7 +18,7 @@ import (
 func TestOpcodeDisabled(t *testing.T) {
 	t.Parallel()
 
-	tests := []byte{OP_2MUL, OP_2DIV, OP_LSHIFT, OP_RSHIFT}
+	tests := []byte{OP_2MUL, OP_2DIV}
 	for _, opcodeVal := range tests {
 		pop := parsedOpcode{opcode: &opcodeArray[opcodeVal], data: nil}
 		err := opcodeDisabled(&pop, nil)

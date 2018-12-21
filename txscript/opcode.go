@@ -472,8 +472,8 @@ var opcodeArray = [256]opcode{
 	OP_MUL:                {OP_MUL, "OP_MUL", 1, opcodeMul},
 	OP_DIV:                {OP_DIV, "OP_DIV", 1, opcodeDiv},
 	OP_MOD:                {OP_MOD, "OP_MOD", 1, opcodeMod},
-	OP_LSHIFT:             {OP_LSHIFT, "OP_LSHIFT", 1, opcodeDisabled},
-	OP_RSHIFT:             {OP_RSHIFT, "OP_RSHIFT", 1, opcodeDisabled},
+	OP_LSHIFT:             {OP_LSHIFT, "OP_LSHIFT", 1, opcodeLShift},
+	OP_RSHIFT:             {OP_RSHIFT, "OP_RSHIFT", 1, opcodeRShift},
 	OP_BOOLAND:            {OP_BOOLAND, "OP_BOOLAND", 1, opcodeBoolAnd},
 	OP_BOOLOR:             {OP_BOOLOR, "OP_BOOLOR", 1, opcodeBoolOr},
 	OP_NUMEQUAL:           {OP_NUMEQUAL, "OP_NUMEQUAL", 1, opcodeNumEqual},
@@ -624,10 +624,6 @@ func (pop *parsedOpcode) isDisabled() bool {
 	case OP_2MUL:
 		return true
 	case OP_2DIV:
-		return true
-	case OP_LSHIFT:
-		return true
-	case OP_RSHIFT:
 		return true
 	default:
 		return false
@@ -1856,6 +1852,48 @@ func opcodeMod(op *parsedOpcode, vm *Engine) error {
 		return scriptError(ErrNumberTooSmall, "mod by zero")
 	}
 	vm.dstack.PushInt(a % b)
+	return nil
+}
+
+func opcodeLShift(op *parsedOpcode, vm *Engine) error {
+	n, err := vm.dstack.PopInt()
+	if err != nil {
+		return err
+	}
+
+	if n.Int32() < 0 {
+		return scriptError(ErrNumberTooSmall, "n less than 0")
+	}
+
+	x, err := vm.dstack.PopInt()
+	if err != nil {
+		return err
+	}
+
+	d := int32(x.Int32() << uint32(n.Int32()))
+	vm.dstack.PushInt(scriptNum(d))
+
+	return nil
+}
+
+func opcodeRShift(op *parsedOpcode, vm *Engine) error {
+	n, err := vm.dstack.PopInt()
+	if err != nil {
+		return err
+	}
+
+	if n.Int32() < 0 {
+		return scriptError(ErrNumberTooSmall, "n less than 0")
+	}
+
+	x, err := vm.dstack.PopInt()
+	if err != nil {
+		return err
+	}
+
+	d := int32(x.Int32() >> uint32(n.Int32()))
+	vm.dstack.PushInt(scriptNum(d))
+
 	return nil
 }
 
