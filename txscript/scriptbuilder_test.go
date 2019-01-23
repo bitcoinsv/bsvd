@@ -251,7 +251,7 @@ func TestScriptBuilderAddData(t *testing.T) {
 		},
 		// Pushing more than 100000 should fail
 		{
-			name:     "push data 4 len 100001 (non-canonical)",
+			name:     "push data len 100001 (non-canonical)",
 			data:     bytes.Repeat([]byte{0x49}, 100001),
 			expected: nil,
 		},
@@ -262,7 +262,7 @@ func TestScriptBuilderAddData(t *testing.T) {
 
 		// 5-byte data push via OP_PUSHDATA_4.
 		{
-			name:     "push data 4 len 100001 (non-canonical)",
+			name:     "push data len 100001 (non-canonical)",
 			data:     bytes.Repeat([]byte{0x49}, 100001),
 			expected: append([]byte{OP_PUSHDATA4, 0xA1, 0x86, 0x01, 0x00}, bytes.Repeat([]byte{0x49}, 100001)...),
 			useFull:  true,
