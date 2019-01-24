@@ -18,13 +18,10 @@ import (
 	"runtime"
 	"time"
 
-	"sort"
-
-	"github.com/bitcoinsv/bsvd/bsvec"
 	"github.com/bitcoinsv/bsvd/blockchain"
+	"github.com/bitcoinsv/bsvd/bsvec"
 	"github.com/bitcoinsv/bsvd/chaincfg"
 	"github.com/bitcoinsv/bsvd/chaincfg/chainhash"
-	"github.com/bitcoinsv/bsvd/mining"
 	"github.com/bitcoinsv/bsvd/txscript"
 	"github.com/bitcoinsv/bsvd/wire"
 	"github.com/bitcoinsv/bsvutil"
@@ -38,7 +35,7 @@ const (
 	minCoinbaseScriptLen = 2
 	maxCoinbaseScriptLen = 100
 	medianTimeBlocks     = 11
-	maxScriptElementSize = 520
+	maxScriptElementSize = 100000
 
 	// numLargeReorgBlocks is the number of blocks to use in the large block
 	// reorg test (when enabled).  This is the equivalent of 1 week's worth
@@ -1893,7 +1890,7 @@ func Generate(includeLargeReorg bool) (tests [][]TestInstance, err error) {
 	//
 	//  Comment assumptions:
 	//    maxBlockSigOps = 20000
-	//    maxScriptElementSize = 520
+	//    maxScriptElementSize = 100000
 	//
 	//  [0-19999]    : OP_CHECKSIG
 	//  [20000]      : OP_PUSHDATA4

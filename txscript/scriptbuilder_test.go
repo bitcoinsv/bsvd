@@ -213,7 +213,7 @@ func TestScriptBuilderAddData(t *testing.T) {
 			expected: append([]byte{OP_PUSHDATA1, 255}, bytes.Repeat([]byte{0x49}, 255)...),
 		},
 
-		// BIP0062: Pushing 256 to 520 bytes must use OP_PUSHDATA2.
+		// Pushing 256 to 65535 bytes must use OP_PUSHDATA2.
 		{
 			name:     "push data len 256",
 			data:     bytes.Repeat([]byte{0x49}, 256),
@@ -225,22 +225,34 @@ func TestScriptBuilderAddData(t *testing.T) {
 			expected: append([]byte{OP_PUSHDATA2, 0x08, 0x02}, bytes.Repeat([]byte{0x49}, 520)...),
 		},
 
-		// BIP0062: OP_PUSHDATA4 can never be used, as pushes over 520
-		// bytes are not allowed, and those below can be done using
-		// other operators.
+		// OP_PUSHDATA4
+		// 520 was the previous limit under BIP0062. Test 521 bytes and beyond
 		{
 			name:     "push data len 521",
 			data:     bytes.Repeat([]byte{0x49}, 521),
-			expected: nil,
+			expected: append([]byte{OP_PUSHDATA2, 0x09, 0x02}, bytes.Repeat([]byte{0x49}, 521)...),
 		},
 		{
 			name:     "push data len 32767 (canonical)",
 			data:     bytes.Repeat([]byte{0x49}, 32767),
-			expected: nil,
+			expected: append([]byte{OP_PUSHDATA2, 0xFF, 0x7F}, bytes.Repeat([]byte{0x49}, 32767)...),
 		},
+		// Pushing 65536 to 100000 must use OP_PUSHDATA4
 		{
 			name:     "push data len 65536 (canonical)",
 			data:     bytes.Repeat([]byte{0x49}, 65536),
+			expected: append([]byte{OP_PUSHDATA4, 0x00, 0x00, 0x01, 0x00}, bytes.Repeat([]byte{0x49}, 65536)...),
+		},
+		// Pushing maximum bytes allowed
+		{
+			name:     "push data len 100000 (canonical)",
+			data:     bytes.Repeat([]byte{0x49}, 100000),
+			expected: append([]byte{OP_PUSHDATA4, 0xA0, 0x86, 0x01, 0x00}, bytes.Repeat([]byte{0x49}, 100000)...),
+		},
+		// Pushing more than 100000 should fail
+		{
+			name:     "push data len 100001 (non-canonical)",
+			data:     bytes.Repeat([]byte{0x49}, 100001),
 			expected: nil,
 		},
 
@@ -248,19 +260,11 @@ func TestScriptBuilderAddData(t *testing.T) {
 		// intentionally allows data pushes to exceed the limit for
 		// regression testing purposes.
 
-		// 3-byte data push via OP_PUSHDATA_2.
-		{
-			name:     "push data len 32767 (non-canonical)",
-			data:     bytes.Repeat([]byte{0x49}, 32767),
-			expected: append([]byte{OP_PUSHDATA2, 255, 127}, bytes.Repeat([]byte{0x49}, 32767)...),
-			useFull:  true,
-		},
-
 		// 5-byte data push via OP_PUSHDATA_4.
 		{
-			name:     "push data len 65536 (non-canonical)",
-			data:     bytes.Repeat([]byte{0x49}, 65536),
-			expected: append([]byte{OP_PUSHDATA4, 0, 0, 1, 0}, bytes.Repeat([]byte{0x49}, 65536)...),
+			name:     "push data len 100001 (non-canonical)",
+			data:     bytes.Repeat([]byte{0x49}, 100001),
+			expected: append([]byte{OP_PUSHDATA4, 0xA1, 0x86, 0x01, 0x00}, bytes.Repeat([]byte{0x49}, 100001)...),
 			useFull:  true,
 		},
 	}
