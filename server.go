@@ -430,6 +430,13 @@ func (sp *serverPeer) OnVersion(_ *peer.Peer, msg *wire.MsgVersion) *wire.MsgRej
 		return nil
 	}
 
+	// Ignore peers that aren't running Bitcoin
+	if strings.Contains(msg.UserAgent, "ABC") || strings.Contains(msg.UserAgent, "BUCash") {
+		srvrLog.Debugf("Rejecting peer %s for not running Bitcoin", sp.Peer)
+		reason := fmt.Sprint("Sorry, you are not running Bitcoin")
+		return wire.NewMsgReject(msg.Command(), wire.RejectNonstandard, reason)
+	}
+
 	// Reject outbound peers that are not full nodes.
 	wantServices := wire.SFNodeNetwork
 	if !isInbound && !hasServices(msg.Services, wantServices) {
