@@ -30,7 +30,7 @@ type GetBlockHeaderVerboseResult struct {
 type GetBlockBaseVerboseResult struct {
 	Hash          string  `json:"hash"`
 	Confirmations int64   `json:"confirmations"`
-	Size          int32   `json:"size"`
+	Size          int64   `json:"size"`
 	Height        int64   `json:"height"`
 	Version       int32   `json:"version"`
 	VersionHex    string  `json:"versionHex"`
@@ -190,7 +190,7 @@ type GetBlockTemplateResult struct {
 // GetMempoolEntryResult models the data returned from the getmempoolentry
 // command.
 type GetMempoolEntryResult struct {
-	Size             int32    `json:"size"`
+	Size             int64    `json:"size"`
 	Fee              float64  `json:"fee"`
 	ModifiedFee      float64  `json:"modifiedfee"`
 	Time             int64    `json:"time"`
@@ -279,7 +279,7 @@ type GetPeerInfoResult struct {
 // command when the verbose flag is set.  When the verbose flag is not set,
 // getrawmempool returns an array of transaction hashes.
 type GetRawMempoolVerboseResult struct {
-	Size             int32    `json:"size"`
+	Size             int64    `json:"size"`
 	Fee              float64  `json:"fee"`
 	Time             int64    `json:"time"`
 	Height           int64    `json:"height"`
@@ -465,7 +465,7 @@ type TxRawResult struct {
 	Hex           string `json:"hex,omitempty"`
 	Txid          string `json:"txid"`
 	Hash          string `json:"hash,omitempty"`
-	Size          int32  `json:"size,omitempty"`
+	Size          int64  `json:"size,omitempty"`
 	Version       int32  `json:"version"`
 	LockTime      uint32 `json:"locktime"`
 	Vin           []Vin  `json:"vin"`
